@@ -12,10 +12,9 @@ on:
       - calibre-web-automated/**
 jobs:
   publish-calibre-web-automated:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Publish Calibre Web Automated Helm Chart
-        uses: ./.github/workflows/publish-helm-chart.yml
-        with:
-          app-version: ${{ inputs.app-version }}
-          chart-name: 'calibre-web-automated'
+    name: Publish Calibre Web Automated Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      app-version: ${{ inputs.app-version }}
+      chart-name: 'calibre-web-automated'
+    secrets: inherit
