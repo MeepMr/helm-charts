@@ -1,0 +1,20 @@
+secrets:
+  cwaSecretRef: null
+
+cwa:
+  storage: 10Gi
+  timezone: "UTC"
+  maxUploadFileSize: "10m"
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 512Mi
+      ephemeralStorage: 100Mi
+    limits:
+      cpu: 1
+      memory: 1024Mi
+      ephemeralStorage: 200Mi
+
+ingress:
+  clusterIssuer: "letsencrypt-issuer"
+  domain: null

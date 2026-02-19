@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-sfs
+  labels:
+    app: {{ .Chart.Name }}-{{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-sfs
+  template:
+    metadata:
+      name: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-sfs
+      labels:
+        app: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-sfs
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-container
+          image: "ghcr.io/crocodilestick/calibre-web-automated:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+              name: http
+              protocol: TCP
+          env:
+            - name: TZ
+              value: "{{ .Values.cwa.timezone }}"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: HARDCOVER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-secret
+                  key: hardcover-api-token
+            - name: CALIBRE_CONFIG_DIR
+              value: "/config/.config/calibre"
+            - name: NETWORK_SHARE_MODE
+              value: "false"
+          volumeMounts:
+            - mountPath: "/config"
+              name: cwa
+              subPath: config/
+            - mountPath: "/calibre-library"
+              name: cwa
+              subPath: calibre-library/
+            - mountPath: "/config/.config/calibre/plugins"
+              name: cwa
+              subPath: calibre-plugins/
+            - mountPath: "/config/.config/calibre/customize.py.json"
+              name: cwa-plugins-config
+              subPath: customize.py.json
+            - mountPath: "/cwa-book-ingest"
+              name: cwa-consume
+          resources:
+            requests:
+              memory: "{{ .Values.cwa.resources.requests.memory }}"
+              cpu: "{{ .Values.cwa.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.cwa.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.cwa.resources.limits.memory }}"
+              cpu: "{{ .Values.cwa.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.cwa.resources.limits.ephemeralStorage }}"
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: Always
+      restartPolicy: Always
+      volumes:
+        - name: cwa
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-pvc
+        - name: cwa-consume
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-consume-pvc
+        - name: cwa-plugins-config
+          secret:
+            secretName: {{ .Chart.Name }}-{{ .Release.Name }}-cwa-secret
+            items:
+              - key: calibre-plugins
+                path: customize.py.json
+                mode: 0644
