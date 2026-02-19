@@ -16,19 +16,20 @@ on:
         type: string
         description: "name of the helm chart"
   workflow_call:
-    app-version:
-      required: true
-      type: string
-      description: "change the version of the underlying application"
-    chart-location:
-      required: false
-      type: string
-      default: "."
-      description: "location of the helm chart"
-    chart-name:
-      required: true
-      type: string
-      description: "name of the helm chart"
+    inputs:
+      app-version:
+        required: true
+        type: string
+        description: "change the version of the underlying application"
+      chart-location:
+        required: false
+        type: string
+        default: "."
+        description: "location of the helm chart"
+      chart-name:
+        required: true
+        type: string
+        description: "name of the helm chart"
     secrets:
       GITHUB_TOKEN:
         required: true
