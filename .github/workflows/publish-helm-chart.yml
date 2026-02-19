@@ -6,6 +6,7 @@ on:
         required: false
         type: string
         description: "change the version of the underlying application"
+        default: ""
       chart-location:
         required: false
         type: string

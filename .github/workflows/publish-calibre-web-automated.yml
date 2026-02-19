@@ -1,0 +1,21 @@
+name: Publish Calibre Web Automated Helm Chart
+on:
+  workflow_dispatch:
+    inputs:
+      app-version:
+        required: false
+        type: string
+        description: "change the version of the underlying application"
+        default: ""
+  push:
+    paths:
+      - calibre-web-automated/**
+jobs:
+  publish-calibre-web-automated:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Publish Calibre Web Automated Helm Chart
+        uses: ./.github/workflows/publish-helm-chart.yml
+        with:
+          app-version: ${{ inputs.app-version }}
+          chart-name: 'calibre-web-automated'
