@@ -1,0 +1,87 @@
+name: Publish Helm Chart with patched Application Version
+on:
+  workflow_dispatch:
+    inputs:
+      app-version:
+        required: false
+        type: string
+        description: "change the version of the underlying application"
+      chart-location:
+        required: false
+        type: string
+        default: "."
+        description: "location of the helm chart directory"
+      chart-name:
+        required: true
+        type: string
+        description: "name of the helm chart"
+  workflow_call:
+    inputs:
+      app-version:
+        required: true
+        type: string
+        description: "change the version of the underlying application"
+      chart-location:
+        required: false
+        type: string
+        default: "."
+        description: "location of the helm chart directory"
+      chart-name:
+        required: true
+        type: string
+        description: "name of the helm chart"
+    secrets:
+      OP_CONNECT_TOKEN:
+        required: true
+jobs:
+  publish-helm-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v2
+      - name: "Install Helm"
+        uses: azure/setup-helm@v4
+      - name: "Configure OP-Connect"
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          connect-host: https://op-connect.jk-dev.de
+      - name: "Get Chart Version"
+        if: inputs.app-version != ''
+        run: |
+          CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
+          CHART_PART=$(echo $CHART_VERSION | cut -d'-' -f1)
+          echo "CHART_VERSION=$CHART_PART" >> $GITHUB_ENV
+        working-directory: ${{ inputs.chart-location }}
+      - name: "Get new Chart Version"
+        if: inputs.app-version != ''
+        run: |
+          APP_VERSION_NORMALIZED=$(echo "${{ inputs.app-version }}" | tr '.' '-')
+          NEW_VERSION="${CHART_VERSION}-release-${APP_VERSION_NORMALIZED}"
+          sed -i "s/^version:.*/version: $NEW_VERSION/" ${{ inputs.chart-name }}/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: ${{ inputs.app-version }}/" ${{ inputs.chart-name }}/Chart.yaml
+        working-directory: ${{ inputs.chart-location }}
+      - name: "Package Helm Chart"
+        run: helm package ${{ inputs.chart-name }}
+        working-directory: ${{ inputs.chart-location }}
+      - name: "View directory contents"
+        run: ls -al
+        working-directory: ${{ inputs.chart-location }}
+      - name: "View helm-chart-meta contents"
+        run: cat Chart.yaml
+        working-directory: ${{ inputs.chart-location }}/${{ inputs.chart-name }}
+      - name: "Load Helm Registry Credentials"
+        id: load-jk-cr-creds
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          JK_CR_TOKEN: op://GitHub-Actions/jk-registry-access/password
+          JK_CR_USERNAME: op://GitHub-Actions/jk-registry-access/username
+          JK_CR_CHARTS_LOCATION: op://GitHub-Actions/jk-registry-access/charts-location
+          JK_CR_HELM_REGISTRY: op://GitHub-Actions/jk-registry-access/helm-registry
+      - name: "Login to JK-Registry"
+        run: echo ${{ env.JK_CR_TOKEN }} | helm registry login ${{ env.JK_CR_HELM_REGISTRY }} -u ${{ env.JK_CR_USERNAME }} --password-stdin
+      - name: "Push Helm Chart to JK-Container Registry"
+        run: helm push ${{ inputs.chart-name }}-*.tgz ${{ env.JK_CR_CHARTS_LOCATION }}
+        working-directory: ${{ inputs.chart-location }}
+      - name: "Logout from JK-Registry"
+        run: helm registry logout cr.jk-dev.de
