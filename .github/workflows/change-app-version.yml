@@ -60,5 +60,7 @@ jobs:
         working-directory: ${{ inputs.chart-location }}/${{ inputs.chart-name }}
       - name: Commit and Push Changes
         run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
           git commit -am "Updated ${{ inputs.chart-name }} application version to ${{ inputs.app-version }}"
           git push
