@@ -2,11 +2,6 @@ name: Publish Helm Chart with patched Application Version
 on:
   workflow_dispatch:
     inputs:
-      app-version:
-        required: false
-        type: string
-        description: "change the version of the underlying application"
-        default: ""
       chart-location:
         required: false
         type: string
@@ -18,10 +13,6 @@ on:
         description: "name of the helm chart"
   workflow_call:
     inputs:
-      app-version:
-        required: true
-        type: string
-        description: "change the version of the underlying application"
       chart-location:
         required: false
         type: string
@@ -46,30 +37,9 @@ jobs:
         uses: 1password/load-secrets-action/configure@v2
         with:
           connect-host: https://op-connect.jk-dev.de
-      - name: "Get Chart Version"
-        if: inputs.app-version != ''
-        run: |
-          CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
-          CHART_PART=$(echo $CHART_VERSION | cut -d'-' -f1)
-          echo "CHART_VERSION=$CHART_PART" >> $GITHUB_ENV
-        working-directory: ${{ inputs.chart-location }}
-      - name: "Get new Chart Version"
-        if: inputs.app-version != ''
-        run: |
-          APP_VERSION_NORMALIZED=$(echo "${{ inputs.app-version }}" | tr '.' '-')
-          NEW_VERSION="${CHART_VERSION}-release-${APP_VERSION_NORMALIZED}"
-          sed -i "s/^version:.*/version: $NEW_VERSION/" ${{ inputs.chart-name }}/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: ${{ inputs.app-version }}/" ${{ inputs.chart-name }}/Chart.yaml
-        working-directory: ${{ inputs.chart-location }}
       - name: "Package Helm Chart"
         run: helm package ${{ inputs.chart-name }}
         working-directory: ${{ inputs.chart-location }}
-      - name: "View directory contents"
-        run: ls -al
-        working-directory: ${{ inputs.chart-location }}
-      - name: "View helm-chart-meta contents"
-        run: cat Chart.yaml
-        working-directory: ${{ inputs.chart-location }}/${{ inputs.chart-name }}
       - name: "Load Helm Registry Credentials"
         id: load-jk-cr-creds
         uses: 1password/load-secrets-action@v2

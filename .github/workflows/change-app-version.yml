@@ -1,0 +1,68 @@
+name: Change App-Version
+on:
+  workflow_dispatch:
+    inputs:
+      app-version:
+        required: true
+        type: string
+        description: "change the version of the underlying application"
+      chart-location:
+        required: false
+        type: string
+        default: "."
+        description: "location of the helm chart"
+      chart-name:
+        required: true
+        type: string
+        description: "name of the helm chart"
+  workflow_call:
+    app-version:
+      required: true
+      type: string
+      description: "change the version of the underlying application"
+    chart-location:
+      required: false
+      type: string
+      default: "."
+      description: "location of the helm chart"
+    chart-name:
+      required: true
+      type: string
+      description: "name of the helm chart"
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+        description: "github token for pushing changes"
+jobs:
+  change-app-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Get Chart Version"
+        run: |
+          CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
+          CHART_PART=$(echo $CHART_VERSION | cut -d'-' -f1)
+          echo "CHART_VERSION=$CHART_PART" >> $GITHUB_ENV
+        working-directory: ${{ inputs.chart-location }}
+      - name: "Get new Chart Version"
+        run: |
+          APP_VERSION_NORMALIZED=$(echo "${{ inputs.app-version }}" | tr '.' '-')
+          NEW_VERSION="${CHART_VERSION}-release-${APP_VERSION_NORMALIZED}"
+          sed -i "s/^version:.*/version: $NEW_VERSION/" ${{ inputs.chart-name }}/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: ${{ inputs.app-version }}/" ${{ inputs.chart-name }}/Chart.yaml
+        working-directory: ${{ inputs.chart-location }}
+      - name: "View chart-directory contents"
+        run: ls -al
+        working-directory: ${{ inputs.chart-location }}
+      - name: "View helm-chart.yaml"
+        run: cat Chart.yaml
+        working-directory: ${{ inputs.chart-location }}/${{ inputs.chart-name }}
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email '67143880+MeepMr@users.noreply.github.com'
+          git commit -am "Updated ${{ inputs.chart-name }} application version to ${{ inputs.app-version }}"
+          git push
