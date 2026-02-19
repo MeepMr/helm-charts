@@ -30,10 +30,7 @@ on:
         required: true
         type: string
         description: "name of the helm chart"
-    secrets:
-      GITHUB_TOKEN:
-        required: true
-        description: "github token for pushing changes"
+
 jobs:
   change-app-version:
     runs-on: ubuntu-latest
