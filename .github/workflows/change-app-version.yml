@@ -39,10 +39,21 @@ jobs:
   change-app-version:
     runs-on: ubuntu-latest
     steps:
+      - name: "Configure OP-Connect"
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          connect-host: https://op-connect.jk-dev.de
+      - name: "Load GitHub Credentials"
+        id: load-jk-cluster-bot-creds
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          JK_CLUSTER_BOT_TOKEN: op://GitHub-Actions/github-helm-charts-push-token/credential
+          JK_CLUSTER_USERNAME: op://GitHub-Actions/github-helm-charts-push-token/username
+          JK_CLUSTER_EMAIL: op://GitHub-Actions/github-helm-charts-push-token/email
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+          token: ${{ env.JK_CLUSTER_BOT_TOKEN }}
       - name: "Get Chart Version"
         run: |
           CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
@@ -64,7 +75,7 @@ jobs:
         working-directory: ${{ inputs.chart-location }}/${{ inputs.chart-name }}
       - name: Commit and Push Changes
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --global user.name '${{ env.JK_CLUSTER_USERNAME }}'
+          git config --global user.email '${{ env.JK_CLUSTER_EMAIL }}'
           git commit -am "Updated ${{ inputs.chart-name }} application version to ${{ inputs.app-version }}"
           git push
