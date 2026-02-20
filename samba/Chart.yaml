@@ -1,0 +1,9 @@
+apiVersion: v2
+name: samba
+description: A Helm chart for Samba
+
+type: application
+
+version: 1.2.0-release-4-22-6
+
+appVersion: 4.22.6

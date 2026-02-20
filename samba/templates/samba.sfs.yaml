@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+spec:
+  replicas: 1
+  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}-service
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+          image: "ghcr.io/dockur/samba:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 445
+              protocol: TCP
+            - containerPort: 139
+              protocol: TCP
+          volumeMounts:
+            - name: smb-config
+              mountPath: "/etc/samba/smb.conf"
+              readOnly: true
+              subPath: smb.conf
+            - name: smb-users
+              mountPath: "/etc/samba/users.conf"
+              readOnly: true
+              subPath: users.conf
+            {{- range $index, $value := .Values.samba.shares }}
+
+            - name: "{{ $value.name }}"
+              mountPath: "/shares/{{ $value.name }}"
+            {{- end }}
+          resources:
+            requests:
+              memory: "{{ .Values.samba.resources.requests.memory }}"
+              cpu: "{{ .Values.samba.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.samba.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.samba.resources.limits.memory }}"
+              cpu: "{{ .Values.samba.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.samba.resources.limits.ephemeralStorage }}"
+      restartPolicy: Always
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - name: smb-config
+          configMap:
+            name: {{ .Release.Name }}-{{ .Chart.Name }}-config-cfm
+            items:
+              - key: smb.conf
+                path: smb.conf
+        - name: smb-users
+          secret:
+            secretName: {{ .Release.Name }}-{{ .Chart.Name }}-users-secret
+            items:
+              - key: users.conf
+                path: users.conf
+        {{- range $index, $value := .Values.samba.shares }}
+
+        - name: "{{ $value.name }}"
+          persistentVolumeClaim:
+            claimName: "{{ $.Release.Name }}-{{ $value.name }}-volume-claim"
+        {{- end }}

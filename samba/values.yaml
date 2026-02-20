@@ -1,0 +1,21 @@
+secrets:
+  sambaUsersRef: null
+
+samba:
+  shares:
+    - name: null
+      validUsers: null
+      description: null
+      size: null
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 0.1
+      ephemeralStorage: 50Mi
+    limits:
+      memory: 100Mi
+      cpu: 1
+      ephemeralStorage: 100Mi
+
+  globalConfig: null
+  storageClass: longhorn

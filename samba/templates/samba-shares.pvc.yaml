@@ -1,0 +1,14 @@
+{{- range $index, $value := .Values.samba.shares }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ $.Release.Name }}-{{ required "A name for the storage-share must be provided" $value.name }}-volume-claim"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ required "A size of the share-volume must be provided" $value.size }}"
+  storageClassName: {{ required "A storage-class must be provided" $.Values.samba.storageClass }}
+---
+{{- end }}

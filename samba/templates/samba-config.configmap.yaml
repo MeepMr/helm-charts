@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-cfm
+data:
+  smb.conf: |-
+    [global]
+      server string = cluster-samba
+      security = user
+      server signing = mandatory
+      server min protocol = SMB3
+      server smb encrypt = required
+
+      # disable printing services
+      load printers = no
+      printing = bsd
+      printcap name = /dev/null
+      disable spoolss = yes
+
+    {{- range $index, $value := .Values.samba.shares }}
+
+    [{{ $value.name }}]
+      path = /shares/{{ $value.name }}
+      comment = {{ $value.description }}
+      valid users = {{ $value.validUsers }}
+      writable = yes
+      vfs objects = streams_xattr
+
+    {{- end }}
