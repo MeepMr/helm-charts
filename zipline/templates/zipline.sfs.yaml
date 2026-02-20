@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+spec:
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+  serviceName: "{{ .Release.Name }}-{{ .Chart.Name }}-service"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+    spec:
+      containers:
+        - name: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+          image: "ghcr.io/diced/zipline:{{ .Chart.AppVersion }}"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: connection-url
+            - name: CORE_DEFAULT_DOMAIN
+              value: "{{ .Values.config.domain }}"
+            - name: CORE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-core-secret
+                  key: server-secret
+            - name: UPLOADER_ADMIN_LIMIT
+              value: 500mb
+          resources:
+            requests:
+              memory: "{{ .Values.zipline.resources.requests.memory }}"
+              cpu: "{{ .Values.zipline.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.zipline.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.zipline.resources.limits.memory }}"
+              cpu: "{{ .Values.zipline.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.zipline.resources.limits.ephemeralStorage }}"
+          ports:
+            - name: "zipline-server"
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: zipline-volume
+              mountPath: /zipline/uploads
+              subPath: uploads/
+            - name: zipline-volume
+              mountPath: /zipline/public
+              subPath: public/
+            - name: zipline-volume
+              mountPath: /zipline/themes
+              subPath: themes/
+      automountServiceAccountToken: false
+      volumes:
+        - name: zipline-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-{{ .Chart.Name }}-vc

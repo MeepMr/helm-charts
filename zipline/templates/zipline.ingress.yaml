@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.config.maxUploadFileSize }}
+    nginx.org/client-max-body-size: {{ .Values.config.maxUploadFileSize }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ required "A Domain/Host must be provided" .Values.config.domain }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-service
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - {{ required "A Domain/Host must be provided" .Values.config.domain }}
+      secretName: tls-{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Values.config.domain }}-ingress
