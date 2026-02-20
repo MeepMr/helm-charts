@@ -19,6 +19,7 @@ on:
           - zipline
           - calibre-web-automated
           - samba
+          - teamspeak-server
   workflow_call:
     inputs:
       app-version:

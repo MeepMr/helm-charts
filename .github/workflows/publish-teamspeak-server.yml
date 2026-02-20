@@ -1,0 +1,13 @@
+name: Publish TeamSpeak Server Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - teamspeak-server/**
+jobs:
+  publish-teamspeak-server:
+    name: Publish TeamSpeak Server Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'teamspeak-server'
+    secrets: inherit
