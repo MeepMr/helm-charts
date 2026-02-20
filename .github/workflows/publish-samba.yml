@@ -1,0 +1,13 @@
+name: Publish Samba Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - samba/**
+jobs:
+  publish-samba:
+    name: Publish Samba Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'samba'
+    secrets: inherit
