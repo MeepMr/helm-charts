@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ../../../samba
+      - samba/**
 jobs:
   publish-samba:
     name: Publish Samba Helm Chart
-    uses: ./.github/workflows/publish-helm-charts/publish-helm-chart.yml
+    uses: ./.github/workflows/publish-helm-chart.yml
     with:
       chart-name: 'samba'
     secrets: inherit
