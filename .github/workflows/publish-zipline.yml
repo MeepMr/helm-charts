@@ -1,0 +1,13 @@
+name: Publish Zipline Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - zipline/**
+jobs:
+  publish-zipline:
+    name: Publish Zipline Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'zipline'
+    secrets: inherit

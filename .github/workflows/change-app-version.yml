@@ -13,8 +13,12 @@ on:
         description: "location of the helm chart"
       chart-name:
         required: true
-        type: string
-        description: "name of the helm chart"
+        type: choice
+        description: "helm chart to be updated"
+        options:
+          - zipline
+          - calibre-web-automated
+          - samba
   workflow_call:
     inputs:
       app-version:
