@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - calibre-web-automated/**
+      - ../../../calibre-web-automated
 jobs:
   publish-calibre-web-automated:
     name: Publish Calibre Web Automated Helm Chart
-    uses: ./.github/workflows/publish-helm-chart.yml
+    uses: ./.github/workflows/publish-helm-charts/publish-helm-chart.yml
     with:
       chart-name: 'calibre-web-automated'
     secrets: inherit
