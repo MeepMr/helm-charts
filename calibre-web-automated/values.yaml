@@ -3,6 +3,7 @@ secrets:
 
 cwa:
   storage: 10Gi
+  storageClass: longhorn
   timezone: "UTC"
   maxUploadFileSize: "10m"
   resources:

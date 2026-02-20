@@ -8,4 +8,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.cwa.storage }}
-  storageClassName: longhorn
+  storageClassName: {{ .Values.cwa.storageClass }}
