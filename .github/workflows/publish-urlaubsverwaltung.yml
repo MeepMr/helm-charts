@@ -1,0 +1,13 @@
+name: Publish Urlaubsverwaltung Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - urlaubsverwaltung/**
+jobs:
+  publish-urlaubsverwaltung:
+    name: Publish Urlaubsverwaltung Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'urlaubsverwaltung'
+    secrets: inherit

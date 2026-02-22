@@ -20,6 +20,7 @@ on:
           - calibre-web-automated
           - samba
           - teamspeak-server
+          - urlaubsverwaltung
   workflow_call:
     inputs:
       app-version:
