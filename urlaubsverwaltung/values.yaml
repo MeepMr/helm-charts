@@ -1,0 +1,18 @@
+secrets:
+  databaseSecretRef: null
+  oidcSecretRef: null
+
+ingress:
+  clusterIssuer: "letsencrypt-issuer"
+  domain: null
+
+urlaubsverwaltung:
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 768Mi
+      ephemeralStorage: 10Mi
+    limits:
+      cpu: 1
+      memory: 1536Mi
+      ephemeralStorage: 10Mi

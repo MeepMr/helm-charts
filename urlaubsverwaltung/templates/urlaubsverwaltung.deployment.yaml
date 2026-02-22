@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-deployment
+  labels:
+    app: {{ .Chart.Name }}-{{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Release.Name }}-uv-deployment
+  template:
+    metadata:
+      name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-deployment
+      labels:
+        app: {{ .Chart.Name }}-{{ .Release.Name }}-uv-deployment
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-container
+          image: "urlaubsverwaltung/urlaubsverwaltung:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:
+            # Database
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-db-secret
+                  key: jdbc-url
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-db-secret
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-db-secret
+                  key: password
+            # Mail
+            - name: UV_MAIL_FROM
+              value: urlaubsverwaltung@example.org
+            - name: UV_MAIL_FROMDISPLAYNAME
+              value: urlaubsverwaltung
+            - name: UV_MAIL_REPLYTO
+              value: urlaubsverwaltung@example.org
+            - name: UV_MAIL_REPLYTODISPLAYNAME
+              value: urlaubsverwaltung
+            - name: UV_MAIL_APPLICATIONURL
+              value: http://localhost:8080
+            - name: SPRING_MAIL_HOST
+              value: localhost
+            - name: SPRING_MAIL_PORT
+              value: "1025"
+            # Calendar
+            - name: UV_CALENDAR_ORGANIZER
+              value: organizer@example.org
+            # OpenID Connect identity provider
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_CLIENT-ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: client-id
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_CLIENT-SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: client-secret
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_CLIENT-NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: issuer-name
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_PROVIDER
+              value: default
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_SCOPE
+              value: openid,profile,email,roles,offline_access,uv_claims
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_AUTHORIZATION-GRANT-TYPE
+              value: authorization_code
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_REDIRECT-URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: redirect-uri
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_ISSUER-URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: issuer-uri
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Release.Name }}-uv-oidc-secret
+                  key: jwt-issuer-uri
+            - name: UV_SECURITY_OIDC_CLAIM-MAPPERS_GROUP-CLAIM_ENABLED
+              value: "true"
+            - name: UV_SECURITY_OIDC_CLAIM-MAPPERS_GROUP-CLAIM_CLAIM-NAME
+              value: "groups"
+          resources:
+            requests:
+              memory: "{{ .Values.urlaubsverwaltung.resources.requests.memory }}"
+              cpu: "{{ .Values.urlaubsverwaltung.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.urlaubsverwaltung.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.urlaubsverwaltung.resources.limits.memory }}"
+              cpu: "{{ .Values.urlaubsverwaltung.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.urlaubsverwaltung.resources.limits.ephemeralStorage }}"
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/readiness
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+      restartPolicy: Always
