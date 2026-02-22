@@ -1,0 +1,8 @@
+apiVersion: v2
+name: teamspeak-server
+description: A Helm chart for deploying a teamspeak-server on Kubernetes
+
+type: application
+
+version: 1.2.0-release-v6-0-0-beta8
+appVersion: "v6.0.0-beta8"

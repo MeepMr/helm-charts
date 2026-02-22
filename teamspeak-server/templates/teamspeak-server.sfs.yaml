@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-server-sfs
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-server-sfs
+  template:
+    metadata:
+      name: {{ .Release.Name }}-server-sfs
+      labels:
+        app: {{ .Release.Name }}-server-sfs
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: {{ .Release.Name }}-ts-server-container
+          image: "teamspeaksystems/teamspeak6-server:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: voice-port
+              containerPort: 30987
+              protocol: UDP
+            - name: file-transfer
+              containerPort: 30033
+              protocol: TCP
+            - name: web-query
+              containerPort: 10080
+              protocol: TCP
+          env:
+            - name: TSSERVER_LICENSE_ACCEPTED
+              value: "accept"
+            - name: TSSERVER_DEFAULT_PORT
+              value: "30987"
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: "100Mi"
+              ephemeral-storage: "100Mi"
+            limits:
+              cpu: "0.5"
+              memory: "200Mi"
+              ephemeral-storage: "200Mi"
+          volumeMounts:
+            - name: "teamspeak-volume"
+              mountPath: /var/tsserver/
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 9987
+      volumes:
+        - name: "teamspeak-volume"
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-teamspeak-volume-claim
+  serviceName: {{ .Release.Name }}-service
+
+
