@@ -1,0 +1,21 @@
+name: Publish Apache Tika Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - apache-tika/**
+jobs:
+  publish-apache-tika:
+    name: Publish Samba Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'apache-tika'
+    secrets: inherit
+  deploy-cluster-tika:
+    name: Deploy Samba Helm Chart
+    needs: publish-apache-tika
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'cluster-tika'
+      chart-version: ${{ needs.publish-samba.outputs.chart-version }}
+    secrets: inherit

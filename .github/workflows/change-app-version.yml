@@ -21,6 +21,7 @@ on:
           - samba
           - teamspeak-server
           - urlaubsverwaltung
+          - apache-tika
   workflow_call:
     inputs:
       app-version:

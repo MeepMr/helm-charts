@@ -12,6 +12,11 @@ on:
         description: "identifier of the helm deployment"
         options:
           - zipline
+          - calibre-web-automated
+          - apache-tika
+          - cluster-smb
+          - teamspeak-server
+          - urlaubsverwaltung-petrus-kh
   workflow_call:
     inputs:
       chart-version:
