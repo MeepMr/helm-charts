@@ -26,6 +26,14 @@ jobs:
           CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
           echo $CHART_VERSION
           echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
+  debug-chart-version:
+    name: Debug Chart Version
+    runs-on: ubuntu-latest
+    needs: get-chart-version
+    steps:
+      - name: "Debug Chart Version"
+        run: |-
+          echo ${{ needs.get-chart-version.outputs.chart-version }}
   deploy-zipline:
     name: Deploy Zipline Helm Chart
     needs: get-chart-version
