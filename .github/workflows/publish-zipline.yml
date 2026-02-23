@@ -11,3 +11,10 @@ jobs:
     with:
       chart-name: 'zipline'
     secrets: inherit
+  deploy-zipline:
+    needs: publish-zipline
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'zipline'
+      chart-version: ${{ needs.publish-zipline.outputs.chart-version }}
+    secrets: inherit
