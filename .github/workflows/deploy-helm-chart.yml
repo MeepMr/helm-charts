@@ -13,10 +13,11 @@ on:
         options:
           - zipline
           - calibre-web-automated
-          - apache-tika
+          - cluster-tika
           - cluster-smb
           - teamspeak-server
           - urlaubsverwaltung-petrus-kh
+          - cluster-gotenberg
   workflow_call:
     inputs:
       chart-version:

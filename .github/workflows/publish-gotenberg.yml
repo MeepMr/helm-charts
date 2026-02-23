@@ -1,0 +1,21 @@
+name: Publish Gotenberg Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - gotenberg/**
+jobs:
+  publish-gotenberg:
+    name: Publish Gotenberg Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'gotenberg'
+    secrets: inherit
+  deploy-cluster-gotenberg:
+    name: Deploy Cluster-Gotenberg
+    needs: publish-gotenberg
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'cluster-gotenberg'
+      chart-version: ${{ needs.publish-gotenberg.outputs.chart-version }}
+    secrets: inherit

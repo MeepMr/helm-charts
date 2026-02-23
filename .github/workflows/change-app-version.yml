@@ -22,6 +22,7 @@ on:
           - teamspeak-server
           - urlaubsverwaltung
           - apache-tika
+          - gotenberg
   workflow_call:
     inputs:
       app-version:

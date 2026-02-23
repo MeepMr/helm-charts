@@ -6,16 +6,16 @@ on:
       - apache-tika/**
 jobs:
   publish-apache-tika:
-    name: Publish Samba Helm Chart
+    name: Publish Apache Tika Helm Chart
     uses: ./.github/workflows/publish-helm-chart.yml
     with:
       chart-name: 'apache-tika'
     secrets: inherit
   deploy-cluster-tika:
-    name: Deploy Samba Helm Chart
+    name: Deploy Cluster-Tika
     needs: publish-apache-tika
     uses: ./.github/workflows/deploy-helm-chart.yml
     with:
       deployment-identifier: 'cluster-tika'
-      chart-version: ${{ needs.publish-samba.outputs.chart-version }}
+      chart-version: ${{ needs.publish-apache-tika.outputs.chart-version }}
     secrets: inherit
