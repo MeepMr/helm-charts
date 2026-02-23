@@ -78,7 +78,6 @@ jobs:
           -f ${{ env.DEPLOYMENT_VALUES_FILE }} \
           --kube-apiserver ${{ env.CLUSTER_URL }} \
           --kube-token ${{ env.CLUSTER_TOKEN }} \
-          --dry-run=server \
           --wait
         working-directory: ${{ env.DEPLOYMENT_CONFIG_DIR }}
       - name: "Logout from JK-Registry"
