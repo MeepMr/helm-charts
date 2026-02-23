@@ -1,0 +1,72 @@
+name: deploy-helm-chart.yml
+on:
+  workflow_dispatch:
+    inputs:
+      chart-version:
+        required: true
+        type: string
+        description: "version of the helm chart to be deployed"
+      deployment-identifier:
+        required: true
+        type: choice
+        description: "identifier of the helm deployment"
+        options:
+          - zipline
+  workflow_call:
+    inputs:
+      chart-version:
+        required: true
+        type: string
+      deployment-identifier:
+        required: true
+        type: string
+    secrets:
+      - OP_CONNECT_TOKEN
+jobs:
+  deploy-helm-chart:
+    runs-on: ubuntu-latest
+    environment: jk-cluster
+    steps:
+      - name: "Install Helm"
+        uses: azure/setup-helm@v4
+      - name: "Configure OP-Connect"
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          connect-host: https://op-connect.jk-dev.de
+      - name: "Load Cluster-Config Checkout Credentials"
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          GH_CC_CHECKOUT_TOKEN: op://GitHub-Actions/github-cluster-config-checkout-token/credential
+      - name: "Checkout Repository"
+        uses: actions/checkout@v2
+        with:
+          repository: 'MeepMr/cluster-config'
+          token: '${{ env.GH_CC_CHECKOUT_TOKEN }}'
+      - name: "Load Deployment-Information"
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          DEPLOYMENT_NAME: op://GitHub-Actions/deployment-infos-${{ inputs.deployment-identifier }}/deployment-name
+          DEPLOYMENT_NAMESPACE: op://GitHub-Actions/deployment-infos-${{ inputs.deployment-identifier }}/namespace
+          DEPLOYMENT_VALUES_FILE: op://GitHub-Actions/deployment-infos-${{ inputs.deployment-identifier }}/values-file
+          CHART_NAME: op://GitHub-Actions/deployment-infos-${{ inputs.deployment-identifier }}/chart-name
+          DEPLOYMENT_CONFIG_DIR: op://GitHub-Actions/deployment-infos-${{ inputs.deployment-identifier }}/config-dir
+      - name: "Load KubeConfig-Information"
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          CLUSTER_URL: op://GitHub-Actions/jk-cluster-upgrade-connection/culster-url
+          CLUSTER_TOKEN: op://GitHub-Actions/jk-cluster-upgrade-connection/credential
+      - name: "Deploy Helm Chart"
+        run: |-
+          helm upgrade ${{ DEPLOYMENT_NAME }} oci://cr.jk-dev.de/charts/${{ env.CHART_NAME }} \
+          --version ${{ inputs.chart-version }} \
+          --namespace ${{ env.DEPLOYMENT_NAMESPACE }} \
+          -f ${{ env.DEPLOYMENT_VALUES_FILE }} \
+          --kube-apiserver ${{ env.CLUSTER_URL }} \
+          --kube-token ${{ env.CLUSTER_TOKEN }} \
+          --dry-run=server \
+          --wait
+        working-directory: ${{ env.DEPLOYMENT_CONFIG_DIR }}
+

@@ -27,6 +27,8 @@ on:
         required: true
 jobs:
   publish-helm-chart:
+    outputs:
+      chart-version: ${{ steps.get-chart-version.outputs.CHART_VERSION }}
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
@@ -39,6 +41,12 @@ jobs:
           connect-host: https://op-connect.jk-dev.de
       - name: "Package Helm Chart"
         run: helm package ${{ inputs.chart-name }}
+        working-directory: ${{ inputs.chart-location }}
+      - name: "Get Helm Chart Version"
+        id: get-chart-version
+        run: |-
+          CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
+          "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
         working-directory: ${{ inputs.chart-location }}
       - name: "Load Helm Registry Credentials"
         id: load-jk-cr-creds
