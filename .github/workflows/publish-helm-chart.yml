@@ -46,7 +46,7 @@ jobs:
         id: get-chart-version
         run: |-
           CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
-          "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
         working-directory: ${{ inputs.chart-location }}
       - name: "Load Helm Registry Credentials"
         id: load-jk-cr-creds
