@@ -1,0 +1,10 @@
+gotenberg:
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 512Mi
+      ephemeralStorage: 10Mi
+    limits:
+      cpu: 1
+      memory: 768Mi
+      ephemeralStorage: 100Mi
