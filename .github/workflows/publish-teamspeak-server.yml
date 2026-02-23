@@ -11,3 +11,11 @@ jobs:
     with:
       chart-name: 'teamspeak-server'
     secrets: inherit
+  deploy-teamspeak-server:
+    name: Deploy TeamSpeak Server Helm Chart
+    needs: publish-teamspeak-server
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'teamspeak-server'
+      chart-version: ${{ needs.publish-teamspeak-server.outputs.chart-version }}
+    secrets: inherit

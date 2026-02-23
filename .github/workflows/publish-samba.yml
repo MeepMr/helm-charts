@@ -11,3 +11,11 @@ jobs:
     with:
       chart-name: 'samba'
     secrets: inherit
+  deploy-samba:
+    name: Deploy Samba Helm Chart
+    needs: publish-samba
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'cluster-smb'
+      chart-version: ${{ needs.publish-samba.outputs.chart-version }}
+    secrets: inherit

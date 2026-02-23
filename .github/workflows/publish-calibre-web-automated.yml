@@ -11,3 +11,11 @@ jobs:
     with:
       chart-name: 'calibre-web-automated'
     secrets: inherit
+  deploy-calibre-web-automated:
+    name: Deploy Calibre Web Automated Helm Chart
+    needs: publish-calibre-web-automated
+    uses: ./.github/workflows/deploy-helm-chart.yml
+    with:
+      deployment-identifier: 'calibre-web-automated'
+      chart-version: ${{ needs.publish-calibre-web-automated.outputs.chart-version }}
+    secrets: inherit
