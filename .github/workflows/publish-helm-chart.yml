@@ -22,6 +22,10 @@ on:
         required: true
         type: string
         description: "name of the helm chart"
+    outputs:
+      chart-version:
+        description: "the version of the published helm chart"
+        value: ${{ jobs.publish-helm-chart.outputs.chart-version }}
     secrets:
       OP_CONNECT_TOKEN:
         required: true
