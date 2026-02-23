@@ -57,7 +57,7 @@ jobs:
         uses: 1password/load-secrets-action@v2
         env:
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
-          CLUSTER_URL: op://GitHub-Actions/jk-cluster-upgrade-connection/culster-url
+          CLUSTER_URL: op://GitHub-Actions/jk-cluster-upgrade-connection/cluster-url
           CLUSTER_TOKEN: op://GitHub-Actions/jk-cluster-upgrade-connection/credential
       - name: "Deploy Helm Chart"
         run: |-
