@@ -11,10 +11,26 @@ jobs:
     with:
       chart-name: 'zipline'
     secrets: inherit
-  deploy-zipline:
+  get-chart-version:
+    name: Get Zipline Chart Version
     needs: publish-zipline
+    outputs:
+      chart-version: ${{ steps.get-chart-version.outputs.chart-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+      - name: "Get Helm Chart Version"
+        id: get-chart-version
+        run: |-
+          CHART_VERSION=$(grep '^version:' ${{ inputs.chart-name}}/Chart.yaml | awk '{print $2}')
+          echo $CHART_VERSION
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
+  deploy-zipline:
+    name: Deploy Zipline Helm Chart
+    needs: get-chart-version
     uses: ./.github/workflows/deploy-helm-chart.yml
     with:
       deployment-identifier: 'zipline'
-      chart-version: ${{ needs.publish-zipline.outputs.chart-version }}
+      chart-version: ${{ needs.get-chart-version.outputs.chart-version }}
     secrets: inherit
