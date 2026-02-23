@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+          image: "apache/tika:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9998
+              protocol: TCP
+              name: tika-port
+          resources:
+            requests:
+              memory: "{{ .Values.tika.resources.requests.memory }}"
+              cpu: "{{ .Values.tika.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.tika.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.tika.resources.limits.memory }}"
+              cpu: "{{ .Values.tika.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.tika.resources.limits.ephemeralStorage }}"
+      restartPolicy: Always

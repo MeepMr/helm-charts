@@ -1,0 +1,8 @@
+apiVersion: v2
+name: apache-tika
+description: A Helm chart to deploy Apache Tika on Kubernetes
+
+type: application
+
+version: 4.0.1-release-3-2-3-0-full
+appVersion: "3.2.3.0-full"
