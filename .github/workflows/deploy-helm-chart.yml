@@ -59,9 +59,20 @@ jobs:
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           CLUSTER_URL: op://GitHub-Actions/jk-cluster-upgrade-connection/cluster-url
           CLUSTER_TOKEN: op://GitHub-Actions/jk-cluster-upgrade-connection/credential
+      - name: "Load Helm Registry Credentials"
+        id: load-jk-cr-creds
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          JK_CR_TOKEN: op://GitHub-Actions/jk-registry-access/password
+          JK_CR_USERNAME: op://GitHub-Actions/jk-registry-access/username
+          JK_CR_CHARTS_LOCATION: op://GitHub-Actions/jk-registry-access/charts-location
+          JK_CR_HELM_REGISTRY: op://GitHub-Actions/jk-registry-access/helm-registry
+      - name: "Login to JK-Registry"
+        run: echo ${{ env.JK_CR_TOKEN }} | helm registry login ${{ env.JK_CR_HELM_REGISTRY }} -u ${{ env.JK_CR_USERNAME }} --password-stdin
       - name: "Deploy Helm Chart"
         run: |-
-          helm upgrade ${{ env.DEPLOYMENT_NAME }} oci://cr.jk-dev.de/charts/${{ env.CHART_NAME }} \
+          helm upgrade ${{ env.DEPLOYMENT_NAME }} oci://${{ env.JK_CR_HELM_REGISTRY }}/charts/${{ env.CHART_NAME }} \
           --version ${{ inputs.chart-version }} \
           --namespace ${{ env.DEPLOYMENT_NAMESPACE }} \
           -f ${{ env.DEPLOYMENT_VALUES_FILE }} \
@@ -70,4 +81,6 @@ jobs:
           --dry-run=server \
           --wait
         working-directory: ${{ env.DEPLOYMENT_CONFIG_DIR }}
+      - name: "Logout from JK-Registry"
+        run: helm registry logout ${{ env.JK_CR_HELM_REGISTRY }}
 

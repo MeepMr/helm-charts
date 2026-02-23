@@ -63,4 +63,4 @@ jobs:
         run: helm push ${{ inputs.chart-name }}-*.tgz ${{ env.JK_CR_CHARTS_LOCATION }}
         working-directory: ${{ inputs.chart-location }}
       - name: "Logout from JK-Registry"
-        run: helm registry logout cr.jk-dev.de
+        run: helm registry logout ${{ env.JK_CR_HELM_REGISTRY }}
