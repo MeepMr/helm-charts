@@ -15,7 +15,7 @@ jobs:
     name: Get Zipline Chart Version
     needs: publish-zipline
     outputs:
-      chart-version: ${{ steps.get-chart-version.outputs.chart-version }}
+      chart-version: ${{ steps.get-chart-version.outputs.CHART_VERSION }}
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
