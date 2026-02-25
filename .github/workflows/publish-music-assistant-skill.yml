@@ -1,0 +1,13 @@
+name: Publish Music-Assistant Skill Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - music-assistant-skill/**
+jobs:
+  publish-music-assistant-skill:
+    name: Publish Music-Assistant Skill Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'music-assistant-skill'
+    secrets: inherit
