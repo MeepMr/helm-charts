@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-core-config
 data:
-  config.yaml: |-
+  config: |-
     http: !include http-config.yaml
 
-  http-config.yaml: |-
-    {{ .Values.homeassistant.config.httpConfig }}
+  http-config: "{{ toYaml .Values.homeassistant.config.httpConfig | indent 2 }}"

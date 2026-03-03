@@ -47,12 +47,12 @@ spec:
           configMap:
             name: {{ .Release.Name }}-{{ .Chart.Name }}-core-config
             items:
-              - key: config.yaml
-                path: config.yaml
+              - key: config
+                path: configuration.yaml
         - name: http-config
           configMap:
             name: {{ .Release.Name }}-{{ .Chart.Name }}-core-config
             items:
-              - key: http-config.yaml
+              - key: http-config
                 path: http-config.yaml
       # TODO: bind to local nodes
