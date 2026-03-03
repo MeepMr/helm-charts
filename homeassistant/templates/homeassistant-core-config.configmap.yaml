@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-core-config
+data:
+  config.yaml: |-
+    http: !include http-config.yaml
+
+  http-config.yaml: "{{ .Values.homeassistant.config.httpConfig }}"

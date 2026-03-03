@@ -58,3 +58,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+homeassistant:
+  config:
+    httpConfig: null
