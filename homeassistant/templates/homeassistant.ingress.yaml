@@ -2,9 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: "{{ include "homeassistant.release" . }}-ingress"
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-ingress"
   labels:
-    app: "{{ include "homeassistant.release" . }}"
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -33,7 +33,7 @@ spec:
             {{- end }}
             backend:
               service:
-                name: "{{ include "homeassistant.release" . }}-service"
+                name: "{{ $.Release.Name }}-{{ $.Chart.Name }}-service"
                 port:
                   name: http
           {{- end }}

@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: "{{ include "homeassistant.release" . }}-sfs"
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
   labels:
-    app: "{{ include "homeassistant.release" . }}"
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
 spec:
+  serviceName: "{{ .Release.Name }}-{{ .Chart.Name }}-service"
   replicas: 1
   selector:
     matchLabels:
-      app: "{{ include "homeassistant.release" . }}"
+      app: "{{ .Release.Name }}-{{ .Chart.Name }}"
   template:
     metadata:
-      name: "{{ include "homeassistant.release" . }}-sfs"
+      name: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
     spec:
       automountServiceAccountToken: false
       containers:
-        - name: "{{ include "homeassistant.release" . }}"
+        - name: "{{ .Release.Name }}-{{ .Chart.Name }}"
           image: "ghcr.io/home-assistant/home-assistant:{{ .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           ports:
