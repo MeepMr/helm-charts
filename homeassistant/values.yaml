@@ -62,5 +62,6 @@ affinity: {}
 # Must include the following keys:
 # - config
 # - http-config
+# - recorder-config
 secrets:
   configSecretRef: null

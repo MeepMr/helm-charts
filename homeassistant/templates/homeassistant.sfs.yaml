@@ -55,4 +55,10 @@ spec:
             items:
               - key: http-config
                 path: http-config.yaml
+        - name: recorder-config
+          secret:
+            secretName: {{ .Release.Name }}-{{ .Chart.Name }}-config-secret
+            items:
+              - key: recorder-config
+                path: recorder-config.yaml
       # TODO: bind to local nodes
