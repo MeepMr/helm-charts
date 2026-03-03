@@ -59,6 +59,8 @@ tolerations: []
 
 affinity: {}
 
-homeassistant:
-  config:
-    httpConfig: null
+# Must include the following keys:
+# - config
+# - http-config
+secrets:
+  configSecretRef: null
