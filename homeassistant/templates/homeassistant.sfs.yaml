@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ include "homeassistant.release" . }}-sfs"
+  labels:
+    app: "{{ include "homeassistant.release" . }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ include "homeassistant.release" . }}"
+  template:
+    metadata:
+      name: "{{ include "homeassistant.release" . }}-sfs"
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: "{{ include "homeassistant.release" . }}"
+          image: "ghcr.io/home-assistant/home-assistant:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+          # TODO: liveness-probe, readiness-probe
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+          # TODO: volume mounts
+      # TODO: volumes
+      # TODO: bind to local nodes
