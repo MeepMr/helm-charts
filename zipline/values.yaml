@@ -11,8 +11,8 @@ zipline:
     requests:
       cpu: 0.1
       memory: 265Mi
-      ephemeralStorage: 10Mi
+      ephemeralStorage: 100Mi
     limits:
       cpu: 1
       memory: 768Mi
-      ephemeralStorage: 10Mi
+      ephemeralStorage: 200Mi
