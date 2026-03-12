@@ -21,6 +21,9 @@ spec:
         - name: "{{ .Release.Name }}-{{ .Chart.Name }}"
           image: "ghcr.io/home-assistant/home-assistant:{{ .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "{{ .Values.core.timezone }}"
           ports:
             - name: http
               containerPort: 8123
@@ -30,10 +33,11 @@ spec:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
               memory: {{ .Values.resources.limits.memory }}
+              ephemeral-storage: {{ .Values.resources.limits.ephemeralStorage }}
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
               memory: {{ .Values.resources.requests.memory }}
-          # TODO: volume mounts
+              ephemeral-storage: {{ .Values.resources.requests.ephemeralStorage }}
           volumeMounts:
             - mountPath: /config/configuration.yaml
               subPath: configuration.yaml
@@ -44,7 +48,9 @@ spec:
             - mountPath: /config/recorder-config.yaml
               subPath: recorder-config.yaml
               name: recorder-config
-      # TODO: volumes
+            - mountPath: /config
+              name: hass-volume
+              subPath: hass-config
       volumes:
         - name: core-config
           secret:
@@ -64,4 +70,7 @@ spec:
             items:
               - key: recorder-config
                 path: recorder-config.yaml
+        - name: hass-volume
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-{{ .Release.Name }}-pvc
       # TODO: bind to local nodes

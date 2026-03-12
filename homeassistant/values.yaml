@@ -26,9 +26,11 @@ resources:
    limits:
      cpu: 1
      memory: 1Gi
+     ephemeralStorage: 1Gi
    requests:
      cpu: 0.2
      memory: 512Mi
+     ephemeralStorage: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
@@ -58,6 +60,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+core:
+  timezone: "UTC"
+  storage:
+    size: 5Gi
+    storageClass: "default"
 
 # Must include the following keys:
 # - config
