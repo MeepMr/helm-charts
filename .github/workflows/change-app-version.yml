@@ -23,6 +23,8 @@ on:
           - urlaubsverwaltung
           - apache-tika
           - gotenberg
+          - homeassistant
+          - satisfactory
   workflow_call:
     inputs:
       app-version:

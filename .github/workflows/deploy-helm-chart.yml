@@ -18,6 +18,8 @@ on:
           - teamspeak-server
           - urlaubsverwaltung-petrus-kh
           - cluster-gotenberg
+          - homeassistant
+          - satisfactory
   workflow_call:
     inputs:
       chart-version:
