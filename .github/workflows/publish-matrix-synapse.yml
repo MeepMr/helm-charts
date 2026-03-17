@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - zipline/**
+      - matrix-synapse/**
 jobs:
   publish-matrix-synapse:
     name: Publish Matrix Synapse Helm Chart
