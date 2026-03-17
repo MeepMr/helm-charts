@@ -21,6 +21,7 @@ on:
           - homeassistant
           - satisfactory
           - cyberchef
+          - matrix-synapse
   workflow_call:
     inputs:
       chart-version:

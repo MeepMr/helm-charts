@@ -26,6 +26,7 @@ on:
           - homeassistant
           - satisfactory
           - cyberchef
+          - matrix-synapse
   workflow_call:
     inputs:
       app-version:
