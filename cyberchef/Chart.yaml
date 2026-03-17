@@ -1,0 +1,11 @@
+apiVersion: v2
+name: cyberchef
+description: A Helm chart to deploy Cyberchef on Kubernetes
+
+type: application
+
+version: 1.0.0+up10.22.1
+appVersion: "10.22.1"
+
+maintainers:
+  - name: jklein
