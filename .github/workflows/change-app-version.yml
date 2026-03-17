@@ -25,6 +25,7 @@ on:
           - gotenberg
           - homeassistant
           - satisfactory
+          - cyberchef
   workflow_call:
     inputs:
       app-version:
