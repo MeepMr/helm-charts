@@ -27,6 +27,7 @@ on:
           - satisfactory
           - cyberchef
           - matrix-synapse
+          - outline
   workflow_call:
     inputs:
       app-version:

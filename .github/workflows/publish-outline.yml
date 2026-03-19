@@ -1,0 +1,13 @@
+name: Publish Outline Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - outline/**
+jobs:
+  publish-outline:
+    name: Publish Outline Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'outline'
+    secrets: inherit
