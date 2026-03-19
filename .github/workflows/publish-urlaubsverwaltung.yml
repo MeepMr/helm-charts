@@ -11,11 +11,3 @@ jobs:
     with:
       chart-name: 'urlaubsverwaltung'
     secrets: inherit
-  deploy-urlaubsverwaltung-petrus-kh:
-    name: Deploy Urlaubsverwaltung Helm Chart
-    needs: publish-urlaubsverwaltung
-    uses: ./.github/workflows/deploy-helm-chart.yml
-    with:
-      deployment-identifier: 'urlaubsverwaltung-petrus-kh'
-      chart-version: ${{ needs.publish-urlaubsverwaltung.outputs.chart-version }}
-    secrets: inherit

@@ -11,11 +11,3 @@ jobs:
     with:
       chart-name: 'cyberchef'
     secrets: inherit
-#  deploy-cyberchef:
-#    name: Deploy Cyberchef Helm Chart
-#    needs: publish-cyberchef
-#    uses: ./.github/workflows/deploy-helm-chart.yml
-#    with:
-#      deployment-identifier: 'cyberchef'
-#      chart-version: ${{ needs.publish-cyberchef.outputs.chart-version }}
-#    secrets: inherit

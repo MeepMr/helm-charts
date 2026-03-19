@@ -11,11 +11,3 @@ jobs:
     with:
       chart-name: 'matrix-synapse'
     secrets: inherit
-#  deploy-matrix-synapse:
-#    name: Deploy Matrix Synapse Helm Chart
-#    needs: publish-matrix-synapse
-#    uses: ./.github/workflows/deploy-helm-chart.yml
-#    with:
-#      deployment-identifier: 'matrix-synapse'
-#      chart-version: ${{ needs.publish-matrix-synapse.outputs.chart-version }}
-#    secrets: inherit

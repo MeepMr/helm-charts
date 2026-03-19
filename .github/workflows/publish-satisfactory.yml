@@ -11,11 +11,3 @@ jobs:
     with:
       chart-name: 'satisfactory'
     secrets: inherit
-#  deploy-satisfactory:
-#    name: Deploy Satisfactory Helm Chart
-#    needs: publish-satisfactory
-#    uses: ./.github/workflows/deploy-helm-chart.yml
-#    with:
-#      deployment-identifier: 'satisfactory'
-#      chart-version: ${{ needs.publish-satisfactory.outputs.chart-version }}
-#    secrets: inherit

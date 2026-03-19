@@ -11,11 +11,3 @@ jobs:
     with:
       chart-name: 'homeassistant'
     secrets: inherit
-#  deploy-homeassistant-jk:
-#    name: Deploy Homeassistant JK Chart
-#    needs: publish-homeassistant
-#    uses: ./.github/workflows/deploy-helm-chart.yml
-#    with:
-#      deployment-identifier: 'homeassistant-jk'
-#      chart-version: ${{ needs.publish-homeassistant.outputs.chart-version }}
-#    secrets: inherit
