@@ -19,7 +19,7 @@ spec:
         fsGroupChangePolicy: Always
       containers:
         - name: "{{ .Release.Name }}-{{ .Chart.Name }}-container"
-          image: "matrixdotorg/synapse:{{ .Chart.AppVersion }}"
+          image: "ghcr.io/element-hq/synapse:{{ .Chart.AppVersion }}"
           env:
             - name: SYNAPSE_SERVER_NAME
               value: "{{ required "You must provide a Server-Name" .Values.matrix.serverName }}"
