@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: "{{ .Release.Name }}-{{ .Chart.Name }}-service"
   labels:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}-service"
 spec:
   type: ClusterIP
   ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       targetPort: http
   selector:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
