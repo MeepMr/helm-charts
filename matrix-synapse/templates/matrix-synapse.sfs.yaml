@@ -1,19 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
   labels:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
 spec:
+  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}-service
+  replicas: 1
   selector:
     matchLabels:
-      app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
-  serviceName: "{{ .Release.Name }}-{{ .Chart.Name }}-service"
-  replicas: 1
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
   template:
     metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
       labels:
-        app: "{{ .Release.Name }}-{{ .Chart.Name }}-sfs"
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
     spec:
       automountServiceAccountToken: false
       securityContext:
