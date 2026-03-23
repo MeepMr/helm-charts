@@ -28,6 +28,7 @@ on:
           - cyberchef
           - matrix-synapse
           - outline
+          - paperless
   workflow_call:
     inputs:
       app-version:
