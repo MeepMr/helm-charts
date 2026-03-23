@@ -4,6 +4,6 @@ description: A Helm chart for Samba
 
 type: application
 
-version: 1.2.0+up4.22.6
+version: 1.2.0+up4.23.5
 
-appVersion: 4.22.6
+appVersion: 4.23.5
