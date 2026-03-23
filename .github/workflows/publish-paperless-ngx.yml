@@ -1,0 +1,13 @@
+name: Publish Paperless-NGX Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - paperless-ngx/**
+jobs:
+  publish-paperless-ngx:
+    name: Publish Paperless-NGX Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'paperless-ngx'
+    secrets: inherit
