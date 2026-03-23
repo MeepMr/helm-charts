@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: {{ required "A Cluster-Issuer must be provided" .Values.ingress.clusterIssuer}}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.paperless.files.maxUploadFileSize }}
+    nginx.org/client-max-body-size: {{ .Values.paperless.files.maxUploadFileSize }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ required "A Domain/Host must be provided" .Values.ingress.domain }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-service
+                port:
+                  name: pless-s-port
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - {{ required "A Domain/Host must be provided" .Values.ingress.domain }}
+      secretName: tls-{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Values.ingress.domain }}-ingress

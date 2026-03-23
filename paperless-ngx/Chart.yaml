@@ -1,0 +1,12 @@
+apiVersion: v2
+name: paperless-ngx
+description: A Helm chart to deploy Paperless-NGX on Kubernetes
+
+type: application
+
+version: 4.4.0+up2.20.6
+
+appVersion: 2.20.6
+
+maintainers:
+  - name: jklein

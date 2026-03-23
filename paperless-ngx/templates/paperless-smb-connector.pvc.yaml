@@ -1,0 +1,14 @@
+{{- if .Values.smbConnection.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-smb-volume-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: smb
+  volumeName: {{ .Release.Name }}-{{ .Chart.Name }}-smb-pv
+{{- end }}

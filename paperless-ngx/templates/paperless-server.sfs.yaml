@@ -1,0 +1,190 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+spec:
+  replicas: 1
+  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}-service
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+          image: "ghcr.io/paperless-ngx/paperless-ngx:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+              name: paperless-port
+          env:
+            - name: PAPERLESS_REDIS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: redis-connection-url
+            - name: PAPERLESS_REDIS_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: key-prefix
+            - name: PAPERLESS_DBENGINE
+              value: "postgresql"
+            - name: PAPERLESS_DBHOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: server
+            - name: PAPERLESS_DBPORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: port
+            - name: PAPERLESS_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: database
+            - name: PAPERLESS_DBUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: username
+            - name: PAPERLESS_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-db-secret
+                  key: password
+            - name: PAPERLESS_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: username
+            - name: PAPERLESS_ADMIN_MAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: username
+            - name: PAPERLESS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: password
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: paperless-secret-key
+            - name: PAPERLESS_OCR_LANGUAGE
+              value: "{{ .Values.paperless.ocr.languages }}"
+            - name: PAPERLESS_OCR_MODE
+              value: "{{ .Values.paperless.ocr.mode }}"
+            - name: PAPERLESS_OCR_ROTATE_PAGES
+              value: "{{ .Values.paperless.ocr.rotate_pages }}"
+            - name: PAPERLESS_OCR_OUTPUT_TYPE
+              value: "{{ .Values.paperless.ocr.output_type }}"
+            - name: PAPERLESS_FILENAME_FORMAT
+              value: "{{ .Values.paperless.files.filenameFormat }}"
+            - name: PAPERLESS_URL
+              value: "https://{{ .Values.ingress.domain }}"
+            - name: PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE
+              value: "{{ .Values.paperless.files.barcodes.asn.enabled }}"
+            - name: PAPERLESS_CONSUMER_ENABLE_BARCODES
+              value: "{{ .Values.paperless.files.barcodes.enabled }}"
+            - name: PAPERLESS_CONSUMER_BARCODE_STRING
+              value: "{{ .Values.paperless.files.barcodes.barcodeString }}"
+            - name: PAPERLESS_CONSUMER_BARCODE_RETAIN_SPLIT_PAGES
+              value: "{{ .Values.paperless.files.barcodes.retainBarcodePage }}"
+            - name: PAPERLESS_CONSUMER_BARCODE_SCANNER
+              value: "{{ .Values.paperless.files.barcodes.scanner }}"
+            {{- if .Values.paperless.files.tikaGotenberg.enabled }}
+            - name:  PAPERLESS_TIKA_ENABLED
+              value: "{{ .Values.paperless.files.tikaGotenberg.enabled }}"
+            - name: PAPERLESS_TIKA_ENDPOINT
+              value: "http://{{ required "If Tika is enabled, a Tika-Endpoint must be provided" .Values.paperless.files.tikaGotenberg.tikaEndpoint }}"
+            - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+              value: "http://{{ required "If Tika is enabled, a Gotenberg-Endpoint must be provided" .Values.paperless.files.tikaGotenberg.gotenbergEndpoint }}"
+            {{- end }}
+            {{- if .Values.oidc.enabled }}
+            - name: PAPERLESS_APPS
+              value: "allauth.socialaccount.providers.openid_connect"
+            - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+              value: |-
+                {
+                  "openid_connect": {
+                    "OAUTH_PKCE_ENABLED": true,
+                    "APPS": [
+                      {
+                        "provider_id": "{{ required "A OIDC-provider-id must be provided" .Values.oidc.provider.id }}",
+                        "name": "{{ required "A OIDC-provider-name must be provided" .Values.oidc.provider.name }}",
+                        "client_id": "{{ required "A OIDC-client-id must be provided" .Values.oidc.provider.clientId }}",
+                        "settings": {
+                          "fetch_userinfo": true,
+                          "oauth_pkce_enabled": true,
+                          "server_url": "{{ required "A OIDC-discovery-document-url must be provided" .Values.oidc.provider.discoveryUrl }}",
+                          "uid_field": "sub"
+                        }
+                      }
+                    ]
+                  }
+                }
+            - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
+              value: "{{ .Values.oidc.autoLoginWithProvider }}"
+            - name: PAPERLESS_DISABLE_REGULAR_LOGIN
+              value: "{{ .Values.oidc.disableRegularLogin }}"
+            {{- end }}
+          volumeMounts:
+            - mountPath: "/usr/src/paperless/data"
+              name: "paperless-volume"
+              subPath: data/
+            - mountPath: "/usr/src/paperless/media"
+              name: "paperless-volume"
+              subPath: media/
+            - mountPath: "/usr/src/paperless/export"
+              name: "paperless-volume"
+              subPath: export/
+            - mountPath: "/usr/src/paperless/consume"
+              name: "paperless-consume-volume"
+          resources:
+            requests:
+              memory: "{{ .Values.paperless.resources.requests.memory }}"
+              cpu: "{{ .Values.paperless.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.paperless.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.paperless.resources.limits.memory }}"
+              cpu: "{{ .Values.paperless.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.paperless.resources.limits.ephemeralStorage }}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+      restartPolicy: Always
+      volumes:
+        - name: paperless-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-{{ .Chart.Name }}-volume-claim
+        - name: paperless-consume-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-{{ .Chart.Name }}-consume-volume-claim

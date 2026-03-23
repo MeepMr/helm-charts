@@ -1,0 +1,35 @@
+{{- if .Values.smbConnection.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-consume-cronjob
+spec:
+  schedule: {{ .Values.smbConnection.cronJob }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: paperless-consume-cronjob
+              image: busybox:1.28
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - if [ "$(find /mnt/smb -maxdepth 1 -name "*.pdf" -print)" ]; then mv /mnt/smb/*.pdf /mnt/consume; fi
+              volumeMounts:
+                - name: smb-share
+                  mountPath: "/mnt/smb"
+                  readOnly: false
+                - name: consume-folder
+                  mountPath: "/mnt/consume"
+                  readOnly: false
+          restartPolicy: Never
+          volumes:
+            - name: smb-share
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-{{ .Chart.Name }}-smb-volume-claim
+            - name: consume-folder
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-{{ .Chart.Name }}-consume-volume-claim
+{{- end }}

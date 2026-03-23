@@ -1,0 +1,57 @@
+secrets:
+  redisRef: null
+  databaseRef: null
+  paperlessRef: null
+  smbConnectionSecretRef: null
+  oidcSecretRef: null
+
+ingress:
+  clusterIssuer: "letsencrypt-issuer"
+  domain: null
+
+paperless:
+  ocr:
+    languages: "eng"
+    mode: "skip"
+    rotate_pages: "true"
+    output_type: "pdfa"
+  files:
+    filenameFormat: "{{ created_year }}/{{ correspondent }}/{{ title }}"
+    storage: 20Gi
+    maxUploadFileSize: 10m
+    barcodes:
+      enabled: true
+      barcodeString: "PATCHT"
+      retainBarcodePage: false
+      asn:
+        enabled: true
+      scanner: PYZBAR
+    tikaGotenberg:
+      enabled: false
+      tikaEndpoint: null
+      gotenbergEndpoint: null
+  scripts:
+    postConsumptionScripts: []
+    preConsumptionScripts: []
+  resources:
+    requests:
+      cpu: 0.2
+      memory: 1024Mi
+      ephemeralStorage: 200Mi
+    limits:
+      cpu: 1
+      memory: 2048Mi
+      ephemeralStorage: 400Mi
+smbConnection:
+  enabled: false
+  server: null
+  cronJob: "0 0,12 * * *"
+oidc:
+  enabled: false
+  autoLoginWithProvider: false
+  disableRegularLogin: false
+  provider:
+    id: null
+    name: null
+    clientId: null
+    discoveryUrl: null
