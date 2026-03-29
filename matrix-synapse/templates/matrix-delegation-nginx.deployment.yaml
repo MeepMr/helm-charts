@@ -1,0 +1,45 @@
+{{- if .Values.matrix.delegation.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
+          image: "nginx:1.28.3"
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+              ephemeral-storage: "100Mi"
+            requests:
+              memory: "64Mi"
+              cpu: "125m"
+              ephemeral-storage: "50Mi"
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx-config
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+{{- end }}

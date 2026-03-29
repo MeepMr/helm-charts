@@ -2,6 +2,9 @@ matrix:
   serverName: null
   timezone: UTC
   configSecretRef: null
+  delegation:
+    enabled: false
+    serverUrl: null
 
 storage:
   amount: 10Gi

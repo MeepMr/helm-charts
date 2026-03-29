@@ -17,7 +17,24 @@ spec:
                   name: http
             path: /
             pathType: Prefix
+    {{- if .Values.matrix.delegation.enabled }}
+    - host: {{ required "If delegation is enabled you must provide a serverUrl" .Values.matrix.delegation.serverUrl }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-service
+                port:
+                  name: http
+            path: /.well-known/matrix
+            pathType: Prefix
+    {{- end }}
   tls:
+    {{- if .Values.matrix.delegation.enabled }}
+    - hosts:
+        - {{ required "A Domain/Host must be provided" .Values.matrix.delegation.serverUrl }}
+      secretName: tls-{{ .Release.Name }}-{{ .Chart.Name }}-delegation
+    {{- end }}
     - hosts:
         - {{ required "A Domain/Host must be provided" .Values.ingress.domain }}
       secretName: tls-{{ .Release.Name }}-{{ .Chart.Name }}-ingress

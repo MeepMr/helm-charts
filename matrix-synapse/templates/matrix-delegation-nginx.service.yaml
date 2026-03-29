@@ -1,0 +1,15 @@
+{{- if .Values.matrix.delegation.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-service
+spec:
+  selector:
+    app: matrix-federation-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: http
+      name: http
+  type: ClusterIP
+{{- end }}

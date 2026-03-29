@@ -1,0 +1,30 @@
+{{- if .Values.matrix.delegation.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx-config
+data:
+  nginx.conf: |
+    worker_processes 1;
+  
+    events {
+      worker_connections 1024;
+    }
+    
+    http {
+      server {
+        listen 80;
+        
+        location /.well-known/matrix/server {
+          return 200 '{"m.server": "{{ .Values.ingress.domain }}:443"}';
+          add_header Content-Type application/json;
+        }
+      
+        location /.well-known/matrix/client {
+          return 200 '{"m.homeserver": {"base_url": "https://{{ .Values.ingress.domain }}"}}';
+          add_header Content-Type application/json;
+          add_header "Access-Control-Allow-Origin" *;
+        }
+      }
+    }
+{{- end }}
