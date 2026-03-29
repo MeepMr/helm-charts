@@ -37,7 +37,7 @@ spec:
               ephemeral-storage: "{{ .Values.matrix.delegation.resources.requests.ephemeralStorage }}"
           readinessProbe:
             httpGet:
-              path: /
+              path: /.well-known/matrix/server
               port: http
               scheme: HTTP
             initialDelaySeconds: 5
@@ -46,7 +46,7 @@ spec:
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /.well-known/matrix/server
               port: http
               scheme: HTTP
             initialDelaySeconds: 15
