@@ -28,13 +28,31 @@ spec:
               subPath: nginx.conf
           resources:
             limits:
-              memory: "128Mi"
-              cpu: "250m"
-              ephemeral-storage: "100Mi"
+              memory: "{{ .Values.matrix.delegation.resources.limits.memory }}"
+              cpu: "{{ .Values.matrix.delegation.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.matrix.delegation.resources.limits.ephemeralStorage }}"
             requests:
-              memory: "64Mi"
-              cpu: "125m"
-              ephemeral-storage: "50Mi"
+              memory: "{{ .Values.matrix.delegation.resources.requests.memory }}"
+              cpu: "{{ .Values.matrix.delegation.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.matrix.delegation.resources.requests.ephemeralStorage }}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
       volumes:
         - name: nginx-config
           configMap:

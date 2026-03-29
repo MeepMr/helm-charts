@@ -5,6 +5,24 @@ matrix:
   delegation:
     enabled: false
     serverUrl: null
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "250m"
+        ephemeralStorage: "100Mi"
+      requests:
+        memory: "64Mi"
+        cpu: "125m"
+        ephemeralStorage: "50Mi"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+      ephemeralStorage: "1Gi"
+    limits:
+      memory: "2Gi"
+      cpu: "2"
+      ephemeralStorage: "2Gi"
 
 storage:
   amount: 10Gi

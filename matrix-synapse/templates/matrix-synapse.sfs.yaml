@@ -38,8 +38,33 @@ spec:
             - name: http
               containerPort: 8008
               protocol: TCP
-          # TODO: Add liveness and readiness probes
-          # TODO: Add resource requests and limits
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "{{ .Values.matrix.resources.requests.memory }}"
+              cpu: "{{ .Values.matrix.resources.requests.cpu }}"
+              ephemeral-storage: "{{ .Values.matrix.resources.requests.ephemeralStorage }}"
+            limits:
+              memory: "{{ .Values.matrix.resources.limits.memory }}"
+              cpu: "{{ .Values.matrix.resources.limits.cpu }}"
+              ephemeral-storage: "{{ .Values.matrix.resources.limits.ephemeralStorage }}"
           volumeMounts:
             - name: matrix-synapse-volume
               mountPath: /data
