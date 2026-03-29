@@ -5,7 +5,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-service
 spec:
   selector:
-    app: matrix-federation-nginx
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-delegation-nginx
   ports:
     - protocol: TCP
       port: 80
