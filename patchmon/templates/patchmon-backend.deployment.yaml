@@ -125,12 +125,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
                   key: admin-group-name
+            - name: SERVER_PROTOCOL
+              value: "https"
             - name: SERVER_HOST
-              value: "https://{{ .Values.ingress.domain }}"
-            - name: CORS_ORIGIN
-              value: "https://{{ .Values.ingress.domain }}"
+              value: "{{ .Values.ingress.domain }}"
             - name: SERVER_PORT
               value: "443"
+            - name: CORS_ORIGIN
+              value: "https://{{ .Values.ingress.domain }}"
+            - name: TRUST_PROXIES
+              value: "1"
           # TODO: Add liveness and readiness probes
           {{- with .Values.patchmon.backend.resources }}
           resources:
