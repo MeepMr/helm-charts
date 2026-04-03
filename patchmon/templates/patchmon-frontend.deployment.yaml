@@ -24,6 +24,11 @@ spec:
             - containerPort: 3000
               protocol: TCP
               name: http
+          env:
+            - name: BACKEND_URL
+              value: "{{ .Release.Name }}-{{ .Chart.Name }}-backend-service.{{ .Release.Namespace }}.svc.cluster.local"
+            - name: BACKEND_PORT
+              value: "80"
           {{- with .Values.patchmon.frontend.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
