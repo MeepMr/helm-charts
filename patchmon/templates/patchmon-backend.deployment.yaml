@@ -136,4 +136,15 @@ spec:
           resources:
             {{ toYaml . | nindent 12 }}
           {{- end }}
+          volumeMounts:
+            - mountPath: /app/assets
+              name: patchmon-volume
+              subPath: patchmon-assets
+            - mountPath: /app/agents
+              name: patchmon-volume
+              subPath: patchmon-agents
       restartPolicy: Always
+      volumes:
+        - name: patchmon-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-{{ .Chart.Name }}-pvc

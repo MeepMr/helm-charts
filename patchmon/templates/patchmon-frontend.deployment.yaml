@@ -52,4 +52,4 @@ spec:
       volumes:
         - name: patchmon-volume
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}- {{ .Chart.Name }}-pvc
+            claimName: {{ .Release.Name }}-{{ .Chart.Name }}-pvc
