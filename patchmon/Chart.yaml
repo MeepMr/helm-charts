@@ -1,0 +1,11 @@
+apiVersion: v2
+name: patchmon
+description: A Helm chart to deploy Patchmon on Kubernetes
+
+type: application
+
+version: 1.0.0+up1.4.2
+appVersion: "1.4.2"
+
+maintainers:
+  - name: jklein

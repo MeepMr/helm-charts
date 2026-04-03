@@ -1,0 +1,34 @@
+patchmon:
+  storage:
+    size: 10Gi
+    storageClass: null
+  frontend:
+    resources:
+      requests:
+        cpu: 0.1
+        memory: 128Mi
+        ephemeral-storage: 10Mi
+      limits:
+        cpu: 0.5
+        memory: 265Mi
+        ephemeral-storage: 100Mi
+  backend:
+    resources:
+      requests:
+        cpu: 0.1
+        memory: 512Mi
+        ephemeral-storage: 10Mi
+      limits:
+        cpu: 1
+        memory: 768Mi
+        ephemeral-storage: 100Mi
+
+ingress:
+  clusterIssuer: null
+  domain: null
+
+secrets:
+  redisSecretRef: null
+  postgresSecretRef: null
+  oidcSecretRef: null
+  patchmonSecretRef: null

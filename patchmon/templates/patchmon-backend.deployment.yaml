@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: Always
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-backend
+          image: "ghcr.io/patchmon/patchmon-backend:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-postgres-secret
+                  key: database-url
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: host
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: port
+            - name: REDIS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: username
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: password
+            - name: REDIS_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-redis-secret
+                  key: db
+            - name: ASSETS_DIR
+              value: /app/assets
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-patchmon-secret
+                  key: jwt-secret
+            - name: AI_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-patchmon-secret
+                  key: encryption-key
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-patchmon-secret
+                  key: session-secret
+            - name: OIDC_ENABLED
+              value: "true"
+            - name: OIDC_ISSUER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: issuer-url
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: client-id
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: client-secret
+            - name: OIDC_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: redirect-uri
+            - name: OIDC_SCOPES
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: requested-scopes
+            - name: OIDC_AUTO_CREATE_USERS
+              value: "true"
+            - name: OIDC_DEFAULT_ROLE
+              value: "viewer"
+            - name: OIDC_DISABLE_LOCAL_AUTH
+              value: "true"
+            - name: OIDC_BUTTON_TEXT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: button-text
+            - name: OIDC_SYNC_ROLES
+              value: "true"
+            - name: OIDC_USER_GROUP
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: user-group-name
+            - name: OIDC_ADMIN_GROUP
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: admin-group-name
+            - name: SERVER_HOST
+              value: "https://{{ .Values.ingress.domain }}"
+            - name: CORS_ORIGIN
+              value: "https://{{ .Values.ingress.domain }}"
+            - name: SERVER_PORT
+              value: "443"
+          # TODO: Add liveness and readiness probes
+          {{- with .Values.patchmon.backend.resources }}
+          resources:
+            {{ toYaml . | nindent 12 }}
+          {{- end }}
+      restartPolicy: Always
