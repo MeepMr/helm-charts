@@ -29,6 +29,7 @@ on:
           - matrix-synapse
           - outline
           - paperless-ngx
+          - patchmon
   workflow_call:
     inputs:
       app-version:

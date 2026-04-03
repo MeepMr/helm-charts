@@ -1,0 +1,13 @@
+name: Publish Patchmon Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - patchmon/**
+jobs:
+  publish-patchmon:
+    name: Publish Patchmon Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'patchmon'
+    secrets: inherit
