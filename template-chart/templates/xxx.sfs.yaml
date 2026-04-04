@@ -1,19 +1,20 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
   labels:
-    app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
 spec:
   replicas: 1
+  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}-service
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
   template:
     metadata:
-      name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
       labels:
-        app: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -23,7 +24,7 @@ spec:
         fsGroup: 1000
         fsGroupChangePolicy: Always
       containers:
-        - name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
           image: "registry/image:{{ .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           ports:
