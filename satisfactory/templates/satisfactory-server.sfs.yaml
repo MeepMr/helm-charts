@@ -56,15 +56,10 @@ spec:
             failureThreshold: 4
             successThreshold: 1
             periodSeconds: 30
+          {{- with .Values.server.resources }}
           resources:
-            requests:
-              memory: "4Gi"
-              cpu: "1"
-              ephemeral-storage: "5Gi"
-            limits:
-              memory: "8Gi"
-              cpu: "2"
-              ephemeral-storage: "10Gi"
+            {{ toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: satisfactory-volume
               mountPath: /config
@@ -72,6 +67,8 @@ spec:
             - name: satisfactory-volume
               mountPath: /config/gamefiles
               subPath: gameFiles/
+          securityContext:
+            allowPrivilegeEscalation: false
       volumes:
         - name: satisfactory-volume
           persistentVolumeClaim:

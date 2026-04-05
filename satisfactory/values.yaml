@@ -10,3 +10,12 @@ server:
   gamePort: 30777
   messagingPort: 30888
   storage: 20Gi
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "1"
+      ephemeral-storage: "5Gi"
+    limits:
+      memory: "8Gi"
+      cpu: "2"
+      ephemeral-storage: "10Gi"
