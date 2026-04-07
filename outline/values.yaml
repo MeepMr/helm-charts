@@ -3,6 +3,7 @@ secrets:
   redisSecretRef: null
   dbSecretRef: null
 outline:
+  maxUploadSize: 262144000
   oidc:
     displayName: OIDC
   storage:
@@ -19,6 +20,6 @@ outline:
       ephemeralStorage: 100Mi
 
 ingress:
-  enabled: true
+  maxUploadFileSize: 25m
   clusterIssuer: letsencrypt
   domain: null

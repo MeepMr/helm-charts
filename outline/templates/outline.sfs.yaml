@@ -72,11 +72,24 @@ spec:
                   key: client-secret
             - name: OIDC_DISPLAY_NAME
               value: "{{ .Values.outline.oidc.displayName }}"
+            - name: FILE_STORAGE_UPLOAD_MAX_SIZE
+              value: "{{ .Values.outline.maxUploadSize }}"
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
               name: http
-          # TODO: Add liveness and readiness probes
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
           resources:
             requests:
               memory: "{{ .Values.outline.resources.requests.memory }}"

@@ -4,6 +4,8 @@ metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-ingress
   annotations:
     cert-manager.io/cluster-issuer: {{ required "A Cluster-Issuer must be provided" .Values.ingress.clusterIssuer}}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.maxUploadFileSize }}
+    nginx.org/client-max-body-size: {{ .Values.ingress.maxUploadFileSize }}
 spec:
   ingressClassName: nginx
   rules:
