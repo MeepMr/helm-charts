@@ -12,3 +12,8 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "daily"
+  - package-ecosystem: "docker"
+    directories: 
+      - "/homeassistant"
+    schedule:
+      interval: "daily"
