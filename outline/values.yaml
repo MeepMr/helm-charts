@@ -3,7 +3,8 @@ secrets:
   redisSecretRef: null
   dbSecretRef: null
 outline:
-  maxUploadSize: 262144000
+  maxUploadSize: '262144000'
+  forceHttps: 'false'
   oidc:
     displayName: OIDC
   storage:
