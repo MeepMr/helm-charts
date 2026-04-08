@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "helm"
     # Look for a `Chart.yaml` in the `root` directory
     directories: 
-      - "**/*"
+      - "/homeassistant"
     # Check for updates once a week
     schedule:
       interval: "daily"
