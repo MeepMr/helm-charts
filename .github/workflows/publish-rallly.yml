@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ../../rallly/**
+      - /**
 jobs:
   publish-rallly:
     name: Publish Rallly Helm Chart
