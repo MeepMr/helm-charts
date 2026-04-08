@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 20000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: Always
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}
+          image: "lukevella/rallly:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NEXT_PUBLIC_BASE_URL
+              value: "https://{{ .Values.ingress.domain }}"
+            - name: SECRET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: secret-key
+            - name: SUPPORT_EMAIL
+              value: "{{ .Values.rallly.supportEmail }}"
+            {{- if .Values.rallly.smtp.enabled }}
+            - name: NOREPLY_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: no-reply-email
+            - name: NOREPLY_EMAIL_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: no-reply-email-name
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: host
+            - name: SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: port
+            - name: SMTP_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: secure
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: user
+            - name: SMTP_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: password
+            - name: SMTP_REJECT_UNAUTHORIZED
+              value: "{{ .Values.rallly.smtp.rejectUnauthorized }}"
+            - name: SMTP_TLS_SERVERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-smtp-secret
+                  key: tls-servername
+            {{- end }}
+            - name: EMAIL_LOGIN_ENABLED
+              value: "false"
+            - name: REGISTRATION_ENABLED
+              value: "false"
+            - name: OIDC_NAME
+              value: "{{ .Values.rallly.oidc.name }}"
+            - name: OIDC_NAME_CLAIM_PATH
+              value: "{{ .Values.rallly.oidc.nameClaimPath }}"
+            - name: OIDC_EMAIL_CLAIM_PATH
+              value: "{{ .Values.rallly.oidc.emailClaimPath }}"
+            - name: OIDC_PICTURE_CLAIM_PATH
+              value: "{{ .Values.rallly.oidc.pictureClaimPath }}"
+            - name: OIDC_DISCOVERY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: discovery-url
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: client-id
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret
+                  key: client-secret
+            - name: ALLOWED_EMAILS
+              value: "{{ .Values.rallly.allowedEmails }}"
+            - name: INITIAL_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+                  key: initial-admin-email
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-database-secret
+                  key: database-url
+            # TODO: Add Storage Configuration
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+              name: http
+          livenessProbe:
+            {{ toYaml .Values.rallly.livenessProbe | nindent 12}}
+          readinessProbe:
+            {{ toYaml .Values.rallly.readinessProbe | nindent 12}}
+          startupProbe:
+            {{ toYaml .Values.rallly.startupProbe | nindent 12}}
+          resources:
+            {{ toYaml .Values.rallly.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                -
+      restartPolicy: Always
