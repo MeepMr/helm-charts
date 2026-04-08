@@ -10,6 +10,7 @@ rallly:
   allowedEmails: '*'
   supportEmail: null
   oidc:
+    name: 'OIDC'
     pictureClaimPath: 'picture'
     emailClaimPath: 'email'
     nameClaimPath: 'name'
