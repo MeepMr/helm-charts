@@ -7,7 +7,8 @@ updates:
   # Enable version updates for Helm
   - package-ecosystem: "helm"
     # Look for a `Chart.yaml` in the `root` directory
-    directory: "**/*"
+    directories: 
+      - "**/*"
     # Check for updates once a week
     schedule:
       interval: "daily"
