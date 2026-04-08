@@ -7,13 +7,11 @@ updates:
   # Enable version updates for Helm
   - package-ecosystem: "helm"
     # Look for a `Chart.yaml` in the `root` directory
-    directories: 
-      - "/homeassistant"
+    directory: '/homeassistant'
     # Check for updates once a week
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directories: 
-      - "/homeassistant"
+    directory: '/homeassistant'
     schedule:
       interval: "daily"
