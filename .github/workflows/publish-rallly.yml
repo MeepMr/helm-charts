@@ -1,0 +1,13 @@
+name: Publish Rallly Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ../../rallly/**
+jobs:
+  publish-rallly:
+    name: Publish Rallly Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'rallly'
+    secrets: inherit

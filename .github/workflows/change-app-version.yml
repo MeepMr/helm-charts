@@ -30,6 +30,7 @@ on:
           - outline
           - paperless-ngx
           - patchmon
+          - rallly
   workflow_call:
     inputs:
       app-version:
