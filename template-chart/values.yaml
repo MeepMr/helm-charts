@@ -1,3 +1,6 @@
+secrets:
+  xxxSecretRef: null
+
 xxx:
   resources:
     requests:
@@ -9,7 +12,11 @@ xxx:
       memory: 768Mi
       ephemeral-storage: 100Mi
 
+storage:
+  amount: 10Gi
+  storageClass: null
+
 ingress:
   enabled: true
-  clusterIssuer: letsencrypt
+  clusterIssuer: null
   domain: null
