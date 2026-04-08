@@ -35,7 +35,7 @@ spec:
                   name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
                   key: secret-key
             - name: SUPPORT_EMAIL
-              value: "{{ .Values.rallly.supportEmail }}"
+              value: "{{ required "A Support-Email must be provided" .Values.rallly.supportEmail }}"
             {{- if .Values.rallly.smtp.enabled }}
             - name: NOREPLY_EMAIL
               valueFrom:
