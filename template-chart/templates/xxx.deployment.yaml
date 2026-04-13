@@ -30,7 +30,12 @@ spec:
             - containerPort: 80
               protocol: TCP
               name: http
-          # TODO: Add liveness and readiness probes
+          livenessProbe:
+            {{ toYaml .Values.xxx.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{ toYaml .Values.xxx.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{ toYaml .Values.xxx.startupProbe | nindent 12 }}
           resources:
             {{ toYaml .Values.xxx.resources | nindent 12 }}
           securityContext:
