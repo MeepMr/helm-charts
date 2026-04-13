@@ -1,0 +1,178 @@
+secrets:
+  voucherVaultSecretRef: null
+  oidcSecretRef: null
+  databaseSecretRef: null
+
+voucherVault:
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 256Mi
+      ephemeral-storage: 10Mi
+    limits:
+      cpu: 1
+      memory: 384Mi
+      ephemeral-storage: 100Mi
+  # TODO: Refine liness, readiness, startup probes
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  startupProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  securityContext:
+    pod:
+      runAsNonRoot: true
+      runAsUser: 20000
+      runAsGroup: 1000
+      fsGroup: 1000
+      fsGroupChangePolicy: Always
+    container:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      capabilities:
+        drop:
+          - ALL
+        add: []
+  ports:
+    - containerPort: 8000
+      protocol: TCP
+      name: http
+  env:
+    - name: DOMAIN
+      value: "{{ .Values.ingress.domain }}"
+    - name: SECURE_COOKIES
+      value: "True"
+    - name: SESSION_COOKIE_AGE
+      value: "30"
+    - name: SESSION_EXPIRE_AT_BROWSER_CLOSE
+      value: "True"
+    - name: EXPIRY_THRESHOLD_DAYS
+      value: "90"
+    - name: EXPIRY_LAST_NOTIFICATION_DAYS
+      value: "7"
+    - name: TZ
+      value: "UTC"
+    - name: PORT
+      value: "8000"
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-secret"
+          key: "secretKey"
+    - name: REDIS_URL
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-secret"
+          key: "redis-url"
+    - name: CELERY_WORKER_CONCURRENCY
+      value: "1"
+    - name: CELERY_WORKER_PREFETCH_MULTIPLIER
+      value: "1"
+    - name: OIDC_ENABLED
+      value: "True"
+    - name: OIDC_AUTOLOGIN
+      value: "True"
+    - name: OIDC_CREATE_USER
+      value: "True"
+    - name: OIDC_RP_SIGN_ALGO
+      value: "RS256"
+    - name: OIDC_OP_JWKS_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "oidc-jwks-endpoint"
+    - name: OIDC_RP_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "client-id"
+    - name: OIDC_RP_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "client-secret"
+    - name: OIDC_OP_AUTHORIZATION_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "authorization-endpoint"
+    - name: OIDC_OP_TOKEN_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "token-endpoint"
+    - name: OIDC_OP_USER_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc-secret"
+          key: "user-endpoint"
+    - name: DB_ENGINE
+      value: "postgres"
+    - name: POSTGRES_HOST
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
+          key: "host"
+    - name: POSTGRES_PORT
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
+          key: "port"
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
+          key: "user"
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
+          key: "password"
+    - name: POSTGRES_DB
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
+          key: "database"
+    - name: ENV_FROM_CONFIGMAP
+      valueFrom:
+        configMapKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-config-map"
+          key: "configMapKey"
+  storage:
+    volumes:
+      - name: voucher-vault-data
+        persistentVolumeClaim:
+          claimName: "{{ .Release.Name }}-{{ .Chart.Name }}-pvc"
+    volumeMounts:
+      - name: voucher-vault-data
+        mountPath: /opt/app/database
+        subPath: voucher-vault-data
+
+storage:
+  amount: 10Gi
+  storageClass: null
+
+ingress:
+  enabled: true
+  clusterIssuer: null
+  domain: null

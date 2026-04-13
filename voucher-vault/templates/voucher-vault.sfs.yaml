@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  labels:
+    app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+spec:
+  replicas: 1
+  serviceName: {{ .Release.Name }}-{{ .Chart.Name }}-service
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.voucherVault.securityContext.pod | nindent 8 }}
+      containers:
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
+          image: "l4rm4nd/vouchervault:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            {{- range $value := .Values.voucherVault.env }}
+            {{- if $value.value }}
+            - name: {{ $value.name }}
+              value: {{ tpl $value.value $ }}
+            {{- else if $value.valueFrom }}
+            {{- if $value.valueFrom.secretKeyRef }}
+            - name: {{ $value.name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ tpl $value.valueFrom.secretKeyRef.name $ }}
+                  key: {{ tpl $value.valueFrom.secretKeyRef.key $ }}
+            {{- else if $value.valueFrom.configMapKeyRef }}
+            - name: {{ $value.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ tpl $value.valueFrom.configMapKeyRef.name $ }}
+                  key: {{ tpl $value.valueFrom.configMapKeyRef.key $ }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            {{- toYaml .Values.voucherVault.ports | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.voucherVault.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.voucherVault.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.voucherVault.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.voucherVault.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.voucherVault.securityContext.container | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.voucherVault.storage.volumeMounts }}
+            {{- range $value := .Values.voucherVault.storage.volumeMounts }}
+            - name: {{ tpl $value.name $ }}
+              mountPath: {{ tpl $value.mountPath $ }}
+              {{- if $value.subPath }}
+              subPath: {{ tpl $value.subPath $ }}
+              {{- end }}
+              {{- if $value.subPathExpr }}
+              subPathExpr: {{ tpl $value.subPathExpr $ }}
+              {{- end }}
+              {{- if $value.readOnly }}
+              readOnly: {{ tpl $value.readOnly $ }}
+              {{- end }}
+            {{- end }}
+            {{- else }}
+            []
+            {{- end }}
+      restartPolicy: Always
+      volumes:
+        {{- if .Values.voucherVault.storage.volumes }}
+        {{- range $value := .Values.voucherVault.storage.volumes }}
+        - name: {{ tpl $value.name $ }}
+          {{- if $value.persistentVolumeClaim }}
+          persistentVolumeClaim:
+            claimName: {{ tpl $value.persistentVolumeClaim.claimName $ }}
+            {{- if $value.persistentVolumeClaim.readOnly }}
+            readOnly: {{ tpl $value.persistentVolumeClaim.readOnly $ }}
+            {{- end }}
+          {{- else if $value.configMap }}
+          configMap:
+            name: {{ tpl $value.configMap.name $ }}
+            {{- if $value.configMap.defaultMode }}
+            defaultMode: {{ tpl $value.configMap.defaultMode $ }}
+          {{- end }}
+          {{- else if $value.secret }}
+          secret:
+            secretName: {{ tpl $value.secret.secretName $ }}
+            {{- if $value.secret.defaultMode }}
+            defaultMode: {{ tpl $value.secret.defaultMode $ }}
+            {{- end }}
+            {{- if $value.secret.optional }}
+            optional: {{ tpl $value.secret.optional $ }}
+            {{- end }}
+            {{- if $value.secret.items }}
+            items:
+              {{ range $item := $value.secret.items }}
+              - key: {{ tpl $item.key $ }}
+                {{- if $item.path }}
+                path: {{ tpl $item.path $ }}
+                {{- end }}
+                {{- if $item.mode }}
+                mode: {{ tpl $item.mode $ }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
+          {{- else if $value.emptyDir }}
+          emptyDir:
+            {{- if $value.emptyDir.medium }}
+            medium: {{ tpl $value.emptyDir.medium $ }}
+            {{- end }}
+            {{- if $value.emptyDir.sizeLimit }}
+            sizeLimit: {{ tpl $value.emptyDir.sizeLimit $ }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- else }}
+        []
+        {{- end }}
