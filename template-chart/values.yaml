@@ -35,6 +35,38 @@ xxx:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
+  securityContext:
+    pod:
+      runAsNonRoot: true
+      runAsUser: 20000
+      runAsGroup: 1000
+      fsGroup: 1000
+      fsGroupChangePolicy: Always
+    container:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      capabilities:
+        drop:
+          - ALL
+        add: []
+  ports:
+    - containerPort: 80
+      protocol: TCP
+      name: http
+  env:
+    - name: NORMAL_ENV
+      value: "123"
+    - name: ENV_FROM_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-secret"
+          key: "secretKey"
+    - name: ENV_FROM_CONFIGMAP
+      valueFrom:
+        configMapKeyRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-config-map"
+          key: "configMapKey"
 
 storage:
   amount: 10Gi

@@ -18,36 +18,42 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 20000
-        runAsGroup: 1000
-        fsGroup: 1000
-        fsGroupChangePolicy: Always
+        {{- toYaml .Values.xxx.securityContext.pod | nindent 8 }}
       containers:
         - name: {{ .Release.Name }}-{{ .Chart.Name }}-sfs
           image: "registry/image:{{ .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
+          env:
+            {{- range $value := .Values.xxx.env }}
+            {{- if $value.value }}
+            - name: {{ $value.name }}
+              value: {{ $value.value }}
+            {{- else if $value.valueFrom }}
+            {{- if $value.valueFrom.secretKeyRef }}
+            - name: {{ $value.name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ tpl $value.valueFrom.secretKeyRef.name $ }}
+                  key: {{ tpl $value.valueFrom.secretKeyRef.key $ }}
+            {{- else if $value.valueFrom.configMapKeyRef }}
+            - name: {{ $value.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ tpl $value.valueFrom.configMapKeyRef.name $ }}
+                  key: {{ tpl $value.valueFrom.configMapKeyRef.key $ }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           ports:
-            - containerPort: 80
-              protocol: TCP
-              name: http
+            {{- toYaml .Values.xxx.ports | nindent 12 }}
           livenessProbe:
-            {{ toYaml .Values.xxx.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.xxx.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{ toYaml .Values.xxx.readinessProbe | nindent 12 }}
+            {{- toYaml .Values.xxx.readinessProbe | nindent 12 }}
           startupProbe:
-            {{ toYaml .Values.xxx.startupProbe | nindent 12 }}
-          {{- with .Values.xxx.resources }}
+            {{- toYaml .Values.xxx.startupProbe | nindent 12 }}
           resources:
-            {{ toYaml . | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.xxx.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - ALL
-              add:
-                -
+            {{- toYaml .Values.xxx.securityContext.container | nindent 12 }}
       restartPolicy: Always
