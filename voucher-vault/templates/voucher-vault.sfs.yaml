@@ -26,21 +26,21 @@ spec:
           env:
             {{- range $value := .Values.voucherVault.env }}
             {{- if $value.value }}
-            - name: {{ $value.name }}
-              value: {{ tpl $value.value $ }}
+            - name: {{ $value.name | quote }}
+              value: {{ tpl $value.value $ | quote }}
             {{- else if $value.valueFrom }}
             {{- if $value.valueFrom.secretKeyRef }}
             - name: {{ $value.name }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ tpl $value.valueFrom.secretKeyRef.name $ }}
-                  key: {{ tpl $value.valueFrom.secretKeyRef.key $ }}
+                  name: {{ tpl $value.valueFrom.secretKeyRef.name $ | quote }}
+                  key: {{ tpl $value.valueFrom.secretKeyRef.key $ | quote }}
             {{- else if $value.valueFrom.configMapKeyRef }}
             - name: {{ $value.name }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ tpl $value.valueFrom.configMapKeyRef.name $ }}
-                  key: {{ tpl $value.valueFrom.configMapKeyRef.key $ }}
+                  name: {{ tpl $value.valueFrom.configMapKeyRef.name $ | quote }}
+                  key: {{ tpl $value.valueFrom.configMapKeyRef.key $ | quote }}
             {{- end }}
             {{- end }}
             {{- end }}
@@ -59,16 +59,16 @@ spec:
           volumeMounts:
             {{- if .Values.voucherVault.storage.volumeMounts }}
             {{- range $value := .Values.voucherVault.storage.volumeMounts }}
-            - name: {{ tpl $value.name $ }}
-              mountPath: {{ tpl $value.mountPath $ }}
+            - name: {{ tpl $value.name $ | quote }}
+              mountPath: {{ tpl $value.mountPath $ | quote }}
               {{- if $value.subPath }}
-              subPath: {{ tpl $value.subPath $ }}
+              subPath: {{ tpl $value.subPath $ | quote }}
               {{- end }}
               {{- if $value.subPathExpr }}
-              subPathExpr: {{ tpl $value.subPathExpr $ }}
+              subPathExpr: {{ tpl $value.subPathExpr $ | quote }}
               {{- end }}
               {{- if $value.readOnly }}
-              readOnly: {{ tpl $value.readOnly $ }}
+              readOnly: {{ tpl $value.readOnly $ | quote }}
               {{- end }}
             {{- end }}
             {{- else }}
@@ -78,47 +78,47 @@ spec:
       volumes:
         {{- if .Values.voucherVault.storage.volumes }}
         {{- range $value := .Values.voucherVault.storage.volumes }}
-        - name: {{ tpl $value.name $ }}
+        - name: {{ tpl $value.name $ | quote }}
           {{- if $value.persistentVolumeClaim }}
           persistentVolumeClaim:
-            claimName: {{ tpl $value.persistentVolumeClaim.claimName $ }}
+            claimName: {{ tpl $value.persistentVolumeClaim.claimName $ | quote }}
             {{- if $value.persistentVolumeClaim.readOnly }}
-            readOnly: {{ tpl $value.persistentVolumeClaim.readOnly $ }}
+            readOnly: {{ tpl $value.persistentVolumeClaim.readOnly $ | quote }}
             {{- end }}
           {{- else if $value.configMap }}
           configMap:
-            name: {{ tpl $value.configMap.name $ }}
+            name: {{ tpl $value.configMap.name $ | quote }}
             {{- if $value.configMap.defaultMode }}
-            defaultMode: {{ tpl $value.configMap.defaultMode $ }}
+            defaultMode: {{ tpl $value.configMap.defaultMode $ | quote }}
           {{- end }}
           {{- else if $value.secret }}
           secret:
-            secretName: {{ tpl $value.secret.secretName $ }}
+            secretName: {{ tpl $value.secret.secretName $ | quote }}
             {{- if $value.secret.defaultMode }}
-            defaultMode: {{ tpl $value.secret.defaultMode $ }}
+            defaultMode: {{ tpl $value.secret.defaultMode $ | quote }}
             {{- end }}
             {{- if $value.secret.optional }}
-            optional: {{ tpl $value.secret.optional $ }}
+            optional: {{ tpl $value.secret.optional $ | quote }}
             {{- end }}
             {{- if $value.secret.items }}
             items:
               {{ range $item := $value.secret.items }}
-              - key: {{ tpl $item.key $ }}
+              - key: {{ tpl $item.key $ | quote }}
                 {{- if $item.path }}
-                path: {{ tpl $item.path $ }}
+                path: {{ tpl $item.path $ | quote }}
                 {{- end }}
                 {{- if $item.mode }}
-                mode: {{ tpl $item.mode $ }}
+                mode: {{ tpl $item.mode $ | quote }}
                 {{- end }}
               {{- end }}
             {{- end }}
           {{- else if $value.emptyDir }}
           emptyDir:
             {{- if $value.emptyDir.medium }}
-            medium: {{ tpl $value.emptyDir.medium $ }}
+            medium: {{ tpl $value.emptyDir.medium $ | quote }}
             {{- end }}
             {{- if $value.emptyDir.sizeLimit }}
-            sizeLimit: {{ tpl $value.emptyDir.sizeLimit $ }}
+            sizeLimit: {{ tpl $value.emptyDir.sizeLimit $ | quote }}
             {{- end }}
           {{- end }}
         {{- end }}

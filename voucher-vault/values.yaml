@@ -153,11 +153,6 @@ voucherVault:
         secretKeyRef:
           name: "{{ .Release.Name }}-{{ .Chart.Name }}-db-secret"
           key: "database"
-    - name: ENV_FROM_CONFIGMAP
-      valueFrom:
-        configMapKeyRef:
-          name: "{{ .Release.Name }}-{{ .Chart.Name }}-config-map"
-          key: "configMapKey"
   storage:
     volumes:
       - name: voucher-vault-data
