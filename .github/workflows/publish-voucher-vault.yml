@@ -1,0 +1,13 @@
+name: Publish VoucherVault Helm Chart
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - voucher-vault/**
+jobs:
+  publish-voucher-vault:
+    name: Publish VoucherVault Helm Chart
+    uses: ./.github/workflows/publish-helm-chart.yml
+    with:
+      chart-name: 'voucher-vault'
+    secrets: inherit
