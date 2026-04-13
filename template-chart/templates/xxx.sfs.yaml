@@ -27,7 +27,7 @@ spec:
             {{- range $value := .Values.xxx.env }}
             {{- if $value.value }}
             - name: {{ $value.name }}
-              value: {{ $value.value }}
+              value: {{ tpl $value.value $ }}
             {{- else if $value.valueFrom }}
             {{- if $value.valueFrom.secretKeyRef }}
             - name: {{ $value.name }}

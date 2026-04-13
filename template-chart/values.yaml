@@ -56,7 +56,7 @@ xxx:
       name: http
   env:
     - name: NORMAL_ENV
-      value: "123"
+      value: "{{ .Values.ingress.domain }}"
     - name: ENV_FROM_SECRET
       valueFrom:
         secretKeyRef:
