@@ -46,12 +46,18 @@ spec:
             {{- end }}
           ports:
             {{- toYaml .Values.voucherVault.ports | nindent 12 }}
+          {{- if .Values.voucherVault.livenessProbe }}
           livenessProbe:
             {{- toYaml .Values.voucherVault.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.voucherVault.readinessProbe }}
           readinessProbe:
             {{- toYaml .Values.voucherVault.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.voucherVault.startupProbe }}
           startupProbe:
             {{- toYaml .Values.voucherVault.startupProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.voucherVault.resources | nindent 12 }}
           securityContext:
